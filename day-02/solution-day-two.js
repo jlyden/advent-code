@@ -1,11 +1,11 @@
 const fileUtils = require('../common/file-utils.js');
 
-function calculatePositionArea() {
+function calculatePositionArea(returnLimit = null) {
   let currentHorizontalPosition = 0;
   let currentDepth = 0;
 
   try {
-    const instructions = fileUtils.getContents('js/day-two/input.txt');
+    const instructions = fileUtils.getContents('day-02/input.txt', returnLimit);
 
     instructions.forEach(instruction => {
       const directionAndSize = instruction.split(' ');
@@ -36,13 +36,13 @@ function calculatePositionArea() {
 
 console.log(calculatePositionArea());
 
-function calculatePositionAreaWithAim() {
+function calculatePositionAreaWithAim(returnLimit = null) {
   let currentHorizontalPosition = 0;
   let currentDepth = 0;
   let currentAim = 0;
 
   try {
-    const instructions = fileUtils.getContents('js/day-two/input.txt');
+    const instructions = fileUtils.getContents('day-02/input.txt', returnLimit);
 
     instructions.forEach(instruction => {
 

@@ -1,14 +1,15 @@
 const fileUtils = require('../common/file-utils.js');
 
-function calculateIndividualIncreases() {
+function calculateIndividualIncreases(returnLimit = null) {
   let increases = 0;
   let previousDepth = 0;
   let currentDepth;
   
   try {
-    const depths = fileUtils.getContents('js/day-one/input.txt');
+    const depths = fileUtils.getContents('day-01/input.txt', returnLimit);
     depths.forEach(depth => {
       currentDepth = parseInt(depth);
+
       if(currentDepth > previousDepth) {
         increases++;
       }
@@ -25,14 +26,15 @@ function calculateIndividualIncreases() {
 
 console.log(calculateIndividualIncreases());
 
-function calculateSlidingWindowIncreases(windowSize = 3) {
+function calculateSlidingWindowIncreases(windowSize = 3, returnLimit = null) {
   let increases = 0;
   let previousSum = 0;
   let currentSum;
   
   try {
-    const depths = fileUtils.getContents('js/day-one/input.txt');
+    const depths = fileUtils.getContents('day-01/input.txt', returnLimit);
     const totalDepthWindows = depths.length-2;
+
     for(let i=0; i<totalDepthWindows; i++) {
       currentSum = 0;
       for(let j=0; j<windowSize; j++) {
