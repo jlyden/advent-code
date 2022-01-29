@@ -10,7 +10,7 @@ function calculatePositionArea(returnLimit = null) {
     instructions.forEach(instruction => {
       const directionAndSize = instruction.split(' ');
       if(directionAndSize.length != 2) {
-        console.log('Error: Instruction wrong shape');
+        throw 'Instruction wrong shape';
       }
 
       const direction = directionAndSize[0];
@@ -48,7 +48,7 @@ function calculatePositionAreaWithAim(returnLimit = null) {
 
       const directionAndSize = instruction.split(' ');
       if(directionAndSize.length != 2) {
-        console.log('Error: Instruction wrong shape');
+        throw 'Instruction wrong shape';
       }
 
       const direction = directionAndSize[0];

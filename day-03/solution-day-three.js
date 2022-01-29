@@ -68,8 +68,7 @@ function calculateLifeSupportRating(returnLimit = null) {
 
 function determineIndividualLifeSupportRating(individualReportLines, ratingType) {
   if (['o2', 'co2'].indexOf(ratingType) === -1) {
-    console.log('Error: invalid ratingType');
-    return;
+    throw 'Invalid ratingType';
   }
 
   const maxDigits = individualReportLines[0].length;
