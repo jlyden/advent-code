@@ -3,15 +3,24 @@ const testUtils = require('../common/test-utils.js');
 
 const STAR = -1;
 
-console.log(getScoreOfWinningBingoBoard());
-runTests();
+console.log(getScoreOfWinningBingoBoard(first));
+//runTests();
 
-function getScoreOfWinningBingoBoard(returnLimit = null) {
+/**
+ * @param firstOrLast string whether return 'first' or 'last' winning board
+ * @param returnLimit number | null 
+ * @returns number
+ */
+function getScoreOfWinningBingoBoard(firstOrLast, returnLimit = null) {
+  if (['first', 'last'].indexOf(firstOrLast) === -1) {
+    throw `Error: invalid value for firstOrLast: ${firstOrLast}`;
+  }
+
   try {
     const inputFileContents = fileUtils.getContents('day-04/input.txt', returnLimit);
     const [ calledNumbers, bingoBoards ] = prepareDataObjects(inputFileContents);
-    const [ lastNumberCalled, winningBoard ] = findWinningBoard(calledNumbers, bingoBoards)
-    return calculateWinningBoardScore(lastNumberCalled, winningBoard)
+    const [ lastNumberCalled, winningBoard ] = findWinningBoard(calledNumbers, bingoBoards, firstOrLast);
+    return calculateWinningBoardScore(lastNumberCalled, winningBoard);
   } catch(error) {
     console.log(error)
   }
@@ -62,9 +71,17 @@ function prepBoardData(chunk) {
   return boardData;
 }
 
-// TODO: write test
-// TODO: failing here: 'TypeError: findWinningBoard is not a function or its return value is not iterable'
-function findWinningBoard(calledNumbers, bingoBoards) {
+/**
+ * @param calledNumbers number[]
+ * @param bingoBoards boardData[]
+ * @param firstOrLast string whether return 'first' or 'last' winning board
+ * @returns 
+ */
+function findWinningBoard(calledNumbers, bingoBoards, firstOrLast) {
+  let winningBoardCount = 0;
+  // TODO: if first, on winningBoardCount > 0, return board
+  // if last, on winningBoardCount == bingoBoards.len, return board
+
   // loop through numbers
   for (let num of calledNumbers) {
 
