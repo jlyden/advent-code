@@ -3,8 +3,8 @@ const testUtils = require('../common/test-utils.js');
 
 const STAR = -1;
 
-console.log(getScoreOfWinningBingoBoard(7));
-//runTests();
+console.log(getScoreOfWinningBingoBoard());
+runTests();
 
 function getScoreOfWinningBingoBoard(returnLimit = null) {
   try {
@@ -20,12 +20,9 @@ function getScoreOfWinningBingoBoard(returnLimit = null) {
 function prepareDataObjects(contents) {
   // First row is comma-delimited string of numbers
   const calledNumbers = (contents.shift()).split(',').map(num => parseInt(num));
-  // TODO: Remove next line and update return after devqual
-  // Boards start to log out between 40 and 50
-  const calledNumbersShort = calledNumbers.slice(0, 40);
 
   const bingoBoards = prepareBingoBoards(contents);
-  return [ calledNumbersShort, bingoBoards ];
+  return [ calledNumbers, bingoBoards ];
 }
 
 function prepareBingoBoards(fullArray) {
@@ -46,12 +43,12 @@ function prepareBingoBoards(fullArray) {
 function prepBoardData(chunk) {
   let blankRow = chunk.shift(); // remove leading blank row (empty array)
   if (blankRow.length > 0) {
-    throw `Blank row was not: i = ${i}; blankRow = ${blankRow}`;
+    throw `Error: Blank row was not - check line endings; blankRow = ${blankRow}`;
   }
 
   let board = [];
   chunk.forEach(row => {
-    board.push(row.split(/\s+/).map(num => parseInt(num)));
+    board.push(row.split(/\s+/).filter(char => char.length > 0).map(num => parseInt(num)));
   });
 
   if (board.length !== 5) {
@@ -69,22 +66,21 @@ function prepBoardData(chunk) {
 // TODO: failing here: 'TypeError: findWinningBoard is not a function or its return value is not iterable'
 function findWinningBoard(calledNumbers, bingoBoards) {
   // loop through numbers
-  calledNumbers.forEach(num => {
+  for (let num of calledNumbers) {
 
     // loop through boards
-    bingoBoards.forEach(boardData => {
+    for (let boardData of bingoBoards) {
 
       boardData = updateBoardDataForCalledNumber(boardData, num);
 
       if (boardData.starCount > 4) {
-        console.log(boardData.board);
         const isWinner = checkForWinner(boardData.board);
         if (isWinner) {
           return [ num, boardData.board ];
         }
       }
-    });
-  });
+    }
+  }
 }
 
 // tested
@@ -128,15 +124,17 @@ function checkForWinner(board) {
 // tested
 function getIndexesOfAllStarsInRow(row, indexes) {
   const FOUND_STAR = -2;
-  const indexOfStar = row.indexOf(STAR);
+
+  const copyOfRow = [ ...row];
+  const indexOfStar = copyOfRow.indexOf(STAR);
 
   if (indexOfStar === -1) {
     return indexes;
   } else {
     indexes.push(indexOfStar);
-    row[indexOfStar] = FOUND_STAR;
+    copyOfRow[indexOfStar] = FOUND_STAR;
     const atEndOfRow = indexOfStar === (row.length - 1)
-    return atEndOfRow ? indexes : getIndexesOfAllStarsInRow(row, indexes);
+    return atEndOfRow ? indexes : getIndexesOfAllStarsInRow(copyOfRow, indexes);
   }
 }
 
@@ -198,9 +196,34 @@ function testPrepBoardData() {
     ]
   }
 
-  const actualBoardData = prepBoardData(testChunk);
+  let actualBoardData = prepBoardData(testChunk);
   if (!testUtils.objectsEqual(expectedBoardData, actualBoardData)) {
-    throw `testPrepBoardData failed. actualResult: ${JSON.stringify(actualBoardData)}`;
+    throw `testPrepBoardData failed with testChunk. actualResult: ${JSON.stringify(actualBoardData)}`;
+  }
+
+  const testChunkWithZero = [
+    '',
+    ' 0 11 47 61 45',
+    '30 74 73 14 66',
+    '53 52 10 57 15',
+    '64 50 54 28 87',
+    '26 85 63 25 86'
+  ];
+
+  const expectedBoardDataWithZero = {
+    starCount: 0,
+    board: [
+      [ 0, 11, 47, 61, 45 ],
+      [ 30, 74, 73, 14, 66 ],
+      [ 53, 52, 10, 57, 15 ],
+      [ 64, 50, 54, 28, 87 ],
+      [ 26, 85, 63, 25, 86 ]
+    ]
+  }
+
+  actualBoardData = prepBoardData(testChunkWithZero);
+  if (!testUtils.objectsEqual(expectedBoardDataWithZero, actualBoardData)) {
+    throw `testPrepBoardData failed with testChunkWithZero. actualResult: ${JSON.stringify(actualBoardData)}`;
   }
 
   console.log('Completed run of testPrepBoardData successfully')
