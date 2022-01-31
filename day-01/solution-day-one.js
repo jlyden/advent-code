@@ -1,5 +1,8 @@
 const fileUtils = require('../common/file-utils.js');
 
+console.log(calculateIndividualIncreases());
+console.log(calculateSlidingWindowIncreases(3));
+
 function calculateIndividualIncreases(returnLimit = null) {
   let increases = 0;
   let previousDepth = 0;
@@ -23,8 +26,6 @@ function calculateIndividualIncreases(returnLimit = null) {
     console.log(error);
   }
 }
-
-console.log(calculateIndividualIncreases());
 
 function calculateSlidingWindowIncreases(windowSize = 3, returnLimit = null) {
   let increases = 0;
@@ -53,5 +54,3 @@ function calculateSlidingWindowIncreases(windowSize = 3, returnLimit = null) {
     console.log(error);
   }
 }
-
-console.log(calculateSlidingWindowIncreases(3));

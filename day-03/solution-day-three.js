@@ -1,5 +1,8 @@
 const fileUtils = require('../common/file-utils.js');
 
+console.log(calculatePowerConsumption());
+console.log(calculateLifeSupportRating());
+
 function calculatePowerConsumption(returnLimit = null) {
   try {
     const reportLines = fileUtils.getContents('day-03/input.txt', returnLimit);
@@ -51,8 +54,6 @@ function buildGammaAndEpsilonStrings(moreOnesInPosition) {
   return [gammaString, epsilonString];
 }
 
-console.log(calculatePowerConsumption());
-
 function calculateLifeSupportRating(returnLimit = null) {
   try {
     const reportLines = fileUtils.getContents('day-03/input.txt', returnLimit);
@@ -101,5 +102,3 @@ function separateArrayByDigit(anArray, digit) {
   // Always return the longer array first
   return arrayOneLarger ? [arrayOne, arrayZero] : [arrayZero, arrayOne];
 }
-
-console.log(calculateLifeSupportRating());

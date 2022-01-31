@@ -1,5 +1,8 @@
 const fileUtils = require('../common/file-utils.js');
 
+console.log(calculatePositionArea());
+console.log(calculatePositionAreaWithAim());
+
 function calculatePositionArea(returnLimit = null) {
   let currentHorizontalPosition = 0;
   let currentDepth = 0;
@@ -33,8 +36,6 @@ function calculatePositionArea(returnLimit = null) {
     console.log(error);
   }
 }
-
-console.log(calculatePositionArea());
 
 function calculatePositionAreaWithAim(returnLimit = null) {
   let currentHorizontalPosition = 0;
@@ -73,5 +74,3 @@ function calculatePositionAreaWithAim(returnLimit = null) {
     console.log(error);
   } 
 }
-
-console.log(calculatePositionAreaWithAim());
