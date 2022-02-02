@@ -3,23 +3,20 @@ const testUtils = require('../common/test-utils.js');
 
 const STAR = -1;
 
-console.log(getScoreOfWinningBingoBoard(first));
-//runTests();
+//console.log(getScoreOfWinningBingoBoard(returnFirst = true));
+//console.log(getScoreOfWinningBingoBoard(returnFirst = false));
+runTests();
 
 /**
- * @param firstOrLast string whether return 'first' or 'last' winning board
+ * @param returnFirst bool true to return first winning board; false to return last
  * @param returnLimit number | null 
  * @returns number
  */
-function getScoreOfWinningBingoBoard(firstOrLast, returnLimit = null) {
-  if (['first', 'last'].indexOf(firstOrLast) === -1) {
-    throw `Error: invalid value for firstOrLast: ${firstOrLast}`;
-  }
-
+function getScoreOfWinningBingoBoard(returnFirst = true, returnLimit = null) {
   try {
     const inputFileContents = fileUtils.getContents('day-04/input.txt', returnLimit);
     const [ calledNumbers, bingoBoards ] = prepareDataObjects(inputFileContents);
-    const [ lastNumberCalled, winningBoard ] = findWinningBoard(calledNumbers, bingoBoards, firstOrLast);
+    const [ lastNumberCalled, winningBoard ] = findWinningBoard(calledNumbers, bingoBoards, returnFirst);
     return calculateWinningBoardScore(lastNumberCalled, winningBoard);
   } catch(error) {
     console.log(error)
@@ -67,6 +64,7 @@ function prepBoardData(chunk) {
   let boardData = {
     starCount: 0,
     board,
+    alreadyWon: false,
   }
   return boardData;
 }
@@ -74,13 +72,12 @@ function prepBoardData(chunk) {
 /**
  * @param calledNumbers number[]
  * @param bingoBoards boardData[]
- * @param firstOrLast string whether return 'first' or 'last' winning board
+ * @param returnFirst bool true to return first winning board; false to return last
  * @returns 
  */
-function findWinningBoard(calledNumbers, bingoBoards, firstOrLast) {
+function findWinningBoard(calledNumbers, bingoBoards, returnFirst) {
+  const bingoBoardsLen = bingoBoards.length;
   let winningBoardCount = 0;
-  // TODO: if first, on winningBoardCount > 0, return board
-  // if last, on winningBoardCount == bingoBoards.len, return board
 
   // loop through numbers
   for (let num of calledNumbers) {
@@ -90,10 +87,16 @@ function findWinningBoard(calledNumbers, bingoBoards, firstOrLast) {
 
       boardData = updateBoardDataForCalledNumber(boardData, num);
 
-      if (boardData.starCount > 4) {
+      if (!boardData.alreadyWon && boardData.starCount > 4) {
         const isWinner = checkForWinner(boardData.board);
         if (isWinner) {
-          return [ num, boardData.board ];
+          boardData.alreadyWon = true;
+          winningBoardCount++;
+          if (returnFirst & winningBoardCount > 0) {
+            return [ num, boardData.board ];
+          } else if (winningBoardCount === bingoBoardsLen) {
+            return [ num, boardData.board ];
+          }
         }
       }
     }
@@ -210,7 +213,8 @@ function testPrepBoardData() {
       [ 53, 52, 10, 57, 15 ],
       [ 64, 50, 54, 28, 87 ],
       [ 26, 85, 63, 25, 86 ]
-    ]
+    ],
+    alreadyWon: false,
   }
 
   let actualBoardData = prepBoardData(testChunk);
@@ -235,7 +239,8 @@ function testPrepBoardData() {
       [ 53, 52, 10, 57, 15 ],
       [ 64, 50, 54, 28, 87 ],
       [ 26, 85, 63, 25, 86 ]
-    ]
+    ],
+    alreadyWon: false,
   }
 
   actualBoardData = prepBoardData(testChunkWithZero);
@@ -257,7 +262,8 @@ function testUpdateBoardDataForCalledNumber() {
       [ 53, 52, 10, 57, 15 ],
       [ 64, 50, 54, 28, 87 ],
       [ 26, 85, 63, 25, 86 ]
-    ]
+    ],
+    alreadyWon: false,
   }
 
   const expectedBoardDataAfterNumber0 = {
@@ -268,7 +274,8 @@ function testUpdateBoardDataForCalledNumber() {
       [ 53, 52, 10, 57, 15 ],
       [ 64, 50, 54, 28, 87 ],
       [ 26, 85, 63, 25, 86 ]
-    ]
+    ],
+    alreadyWon: false,
   }
 
   const actualBoardDataAfterNumber0 = updateBoardDataForCalledNumber(startingBoardData, testCalledNumbers[0]);
@@ -290,7 +297,8 @@ function testUpdateBoardDataForCalledNumber() {
       [ 53, 52, 10, 57, 15 ],
       [ 64, 50, 54, 28, 87 ],
       [ 26, 85, 63, 25, 86 ]
-    ]
+    ],
+    alreadyWon: false,
   }
 
   const actualBoardDataAfterNumber2 = updateBoardDataForCalledNumber(actualBoardDataAfterNumber1, testCalledNumbers[2]);
@@ -306,7 +314,8 @@ function testUpdateBoardDataForCalledNumber() {
       [ 53, 52, 10, 57, 15 ],
       [ 64, -1, 54, 28, 87 ],
       [ 26, 85, 63, 25, 86 ]
-    ]
+    ],
+    alreadyWon: false,
   }
 
   const actualBoardDataAfterNumber3 = updateBoardDataForCalledNumber(actualBoardDataAfterNumber2, testCalledNumbers[3]);
@@ -322,7 +331,8 @@ function testUpdateBoardDataForCalledNumber() {
       [ 53, 52, 10, 57, 15 ],
       [ 64, -1, 54, 28, 87 ],
       [ 26, 85, 63, -1, 86 ]
-    ]
+    ],
+    alreadyWon: false,
   }
 
   const actualBoardDataAfterNumber4 = updateBoardDataForCalledNumber(actualBoardDataAfterNumber3, testCalledNumbers[4]);
@@ -338,7 +348,8 @@ function testUpdateBoardDataForCalledNumber() {
       [ 53, 52, -1, 57, 15 ],
       [ 64, -1, 54, 28, 87 ],
       [ 26, 85, 63, -1, 86 ]
-    ]
+    ],
+    alreadyWon: false,
   }
 
   const actualBoardDataAfterNumber5 = updateBoardDataForCalledNumber(actualBoardDataAfterNumber4, testCalledNumbers[5]);
@@ -354,7 +365,8 @@ function testUpdateBoardDataForCalledNumber() {
       [ 53, 52, -1, 57, 15 ],
       [ 64, -1, 54, 28, 87 ],
       [ 26, 85, 63, -1, 86 ]
-    ]
+    ],
+    alreadyWon: false,
   }
 
   const actualBoardDataAfterNumber6 = updateBoardDataForCalledNumber(actualBoardDataAfterNumber5, testCalledNumbers[6]);
