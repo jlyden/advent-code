@@ -36,11 +36,26 @@ function isPrimative(a) {
   return primatives.indexOf(typeof a) !== -1;
 }
 
+module.exports.range = function(start, end) {
+  if (start === end) {
+    return [ start ];
+  }
+  const length = Math.abs(end - start) + 1;
+
+  if(end > start) {
+    // credit: https://dev.to/mbrookes/comment/k2ff
+    return Array.from({ length }, (_, i) => start + i);
+  } else {
+    return Array.from({ length }, (_, i) => start - i);
+  }
+}
+
 /***** TESTS *****/
 //runTests();
 
 function runTests() {
   testObjectsEqual();
+  testRange();
 }
 
 function testObjectsEqual() {
@@ -127,4 +142,39 @@ function testObjectsEqual() {
   }
 
   console.log('Completed run of testObjectsEqual successfully.')
+}
+
+function testRange() {
+  const range = module.exports.range;
+  const objectsEqual = module.exports.objectsEqual;
+
+  const expectedResult0To5 = [0, 1, 2, 3, 4, 5];
+  let actualResult = range(0,5);
+
+  if (!objectsEqual(expectedResult0To5, actualResult)) {
+    throw `Failed: testRange with expectedResult0To5: ${actualResult}`;
+  }
+
+  const expectedResult1To2 = [1, 2];
+  actualResult = range(1,2);
+
+  if (!objectsEqual(expectedResult1To2, actualResult)) {
+    throw `Failed: testRange with expectedResult1To2: ${actualResult}`;
+  }
+
+  const expectedResult100To100 = [100];
+  actualResult = range(100,100);
+
+  if (!objectsEqual(expectedResult100To100, actualResult)) {
+    throw `Failed: testRange with expectedResult100To100: ${actualResult}`;
+  }
+
+  const expectedResult5To1 = [5, 4, 3, 2, 1];
+  actualResult = range(5,1);
+
+  if (!objectsEqual(expectedResult5To1, actualResult)) {
+    throw `Failed: testRange with expectedResult5To1: ${actualResult}`;
+  }
+
+  console.log('Completed run of testRange successfully.')
 }

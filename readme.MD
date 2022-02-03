@@ -6,4 +6,5 @@ https://adventofcode.com/2021
 * Day 2 -> added file-utils.getContents
 * Day 3 -> encapsulation
 * Day 4 -> targeted unit tests, test-utils.objectsEqual
+* Day 5 -> rename utils, add range
  
