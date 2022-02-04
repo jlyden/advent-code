@@ -50,12 +50,26 @@ module.exports.range = function(start, end) {
   }
 }
 
+module.exports.sumArray = function(arr) {
+  if (!Array.isArray(arr) || !isNumberArray(arr)) {
+    throw `Invalid param: ${JSON.stringify(arr)}`;
+  }
+
+  return arr.reduce((a, b) => a + b);
+}
+
+function isNumberArray(arr) {
+  const strings = arr.filter(x => typeof x === 'string');
+  return strings.length === 0;
+}
+
 /***** TESTS *****/
 //runTests();
 
 function runTests() {
   testObjectsEqual();
   testRange();
+  testSumArray();
 }
 
 function testObjectsEqual() {
@@ -177,4 +191,44 @@ function testRange() {
   }
 
   console.log('Completed run of testRange successfully.')
+}
+
+function testSumArray() {
+  const sumArray = module.exports.sumArray;
+
+  const numberArray = [ 22, 44, 5, 9 ];
+  let expectedResult = 80;
+  let actualResult = sumArray(numberArray);
+
+  if (expectedResult !== actualResult) {
+    throw `Failed: testSumArray: ${actualResult}`;
+  }
+
+  const negativeNumberArray = [ -22, 44, 5, -9 ];
+  expectedResult = 18;
+  actualResult = sumArray(negativeNumberArray);
+
+  if (expectedResult !== actualResult) {
+    throw `Failed: testSumArray with neg nums: ${actualResult}`;
+  }
+
+  let expectedError = 'Invalid param: 6';
+  try {
+    actualResult = sumArray(6);
+  } catch (error) {
+    if (error !== expectedError) {
+      throw `Failed testSumArray with non-array param - wrong error message`;
+    }
+  }
+
+  expectedError = 'Invalid param: [6,4,15,"foo",76,"bar"]';
+  try {
+    actualResult = sumArray([6, 4, 15, 'foo', 76, 'bar' ]);
+  } catch (error) {
+    if (error !== expectedError) {
+      throw `Failed testSumArray with string array param - wrong error message`;
+    }
+  }
+
+  console.log('Completed run of testSumArray successfully.')
 }
