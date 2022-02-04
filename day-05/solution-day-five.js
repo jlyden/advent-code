@@ -103,7 +103,7 @@ function mapHorizontalLine(coordinates, map) {
   }
 
   let rowNumber = coordinates.x1;
-  let row = map[rowNumber] ? map[rowNumber] : {};
+  let row = map[rowNumber] || {};
 
   const yValues = utils.range(coordinates.y1, coordinates.y2);
   yValues.forEach(yValue => {
@@ -126,7 +126,7 @@ function mapVerticalLine(coordinates, map) {
 
   const xValues = utils.range(coordinates.x1, coordinates.x2);
   xValues.forEach(xValue => {
-    let row = map[xValue] ? map[xValue] : {};
+    let row = map[xValue] || {};
     row[colNumber] = incrementRowPoint(row, colNumber);
     map = {
       ...map,
@@ -148,7 +148,7 @@ function mapDiagonalLine(coordinates,map) {
   }
 
   for(let i=0; i<xValsLen; i++) {
-    let row = map[xValues[i]] ? map[xValues[i]] : {};
+    let row = map[xValues[i]] || {};
     row[yValues[i]] = incrementRowPoint(row, yValues[i]);
     map = {
       ...map,
