@@ -63,6 +63,11 @@ function isNumberArray(arr) {
   return strings.length === 0;
 }
 
+module.exports.avgArray = function(arr) {
+  return module.exports.sumArray(arr) / arr.length;
+}
+
+
 /***** TESTS *****/
 //runTests();
 
