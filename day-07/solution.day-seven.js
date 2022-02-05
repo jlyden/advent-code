@@ -1,24 +1,16 @@
 const fileUtils = require('../common/file-utils.js');
 const utils = require('../common/utils.js');
 
-console.log(getFuelCostToMoveCrabsIntoAlignmentBruteForce()); // 357353 moving to position 332
-runTests();
+console.log(getFuelCostToMoveCrabsIntoAlignment()); // Consistent Rate: 357353 moving to position 332
+//runTests();
 
-function getFuelCostToMoveCrabsIntoAlignmentBruteForce(returnLimit = null) {
+function getFuelCostToMoveCrabsIntoAlignment(returnLimit = null) {
   const crabPositions = fileUtils.getContents('day-07/input.txt', returnLimit, ',').map(num => parseInt(num));
   return findLowestCostBruteForce(crabPositions);
 }
 
-function collectCrabPositions(crabPositions) {
-  let collectedCrabPositions = {};
-  crabPositions.forEach(crabPosition => {
-    collectedCrabPositions[crabPosition] = parseInt(collectedCrabPositions[crabPosition] || 0) + 1;
-  });
-  return collectedCrabPositions;
-}
-
 // This brute force method works, but with horrible efficiency
-// Not only more data, but greater range vastly increases computation time
+// More data and/or greater range vastly increases computation time
 function findLowestCostBruteForce(crabPositions) {
   const [ arrMin, arrMax ] = getMinMaxOfArray(crabPositions);
   const collectedCrabPositions = collectCrabPositions(crabPositions);
@@ -30,13 +22,39 @@ function findLowestCostBruteForce(crabPositions) {
   return getMinMaxOfArray(allCosts)[0];
 }
 
+function collectCrabPositions(crabPositions) {
+  let collectedCrabPositions = {};
+  crabPositions.forEach(crabPosition => {
+    collectedCrabPositions[crabPosition] = parseInt(collectedCrabPositions[crabPosition] || 0) + 1;
+  });
+  return collectedCrabPositions;
+}
+
 function getCostToMoveCrabs(collectedCrabPositions, targetPosition) {
   let costToMoveAll = 0;
   for (const [position, count] of Object.entries(collectedCrabPositions)) {
-    const costToMoveCrabsAtPosition = Math.abs(parseInt(position) - targetPosition) * count;
+    const costToMoveCrabsAtPosition = getCostToMoveCrabsAtPositionConsistentRate(position, targetPosition, count)
     costToMoveAll += costToMoveCrabsAtPosition
   };
   return costToMoveAll;
+}
+
+function getCostToMoveCrabsAtPositionConsistentRate(position, targetPosition, count) {
+  return Math.abs(parseInt(position) - targetPosition) * count;
+}
+
+function getCostToMoveCrabsAtPositionIncreasingRate(position, targetPosition, count) {
+  const diffBetweenPositions = Math.abs(parseInt(position) - targetPosition);
+  const costForOne = calculateCostIncreasingRate(diffBetweenPositions);
+  return costForOne * count;
+}
+
+function calculateCostIncreasingRate(diffBetweenPositions) {
+  if (!diffBetweenPositions) {
+    throw `Error: calculateCostIncreasingRate invalid param: ${JSON.stringify(diffBetweenPositions)}`;
+  }
+  const range = utils.range(1, diffBetweenPositions);
+  return utils.sumArray(range);
 }
 
 function getMinMaxOfArray(arr) {
@@ -68,6 +86,7 @@ function getAverageOfPositions(crabPositions) {
 function runTests() {
   testCollectCrabPositions();
   testFindLowestCostBruteForce();
+  testCalculateCostIncreasingRate();
 }
 
 function testCollectCrabPositions() {
@@ -100,4 +119,33 @@ function testFindLowestCostBruteForce() {
   }
 
   console.log('Completed run of testFindLowestCostBruteForce successfully')
+}
+
+function testCalculateCostIncreasingRate() {
+  let diff = 1;
+  let expectedResult = 1;
+  let actualResult = calculateCostIncreasingRate(diff)
+
+  if (expectedResult !== actualResult) {
+    throw `Failed calculateCostIncreasingRate for ${diff}. actualResult: ${actualResult}`;
+  }
+
+  diff = 2;
+  expectedResult = 3;
+  actualResult = calculateCostIncreasingRate(diff)
+
+  if (expectedResult !== actualResult) {
+    throw `Failed calculateCostIncreasingRate for ${diff}. actualResult: ${actualResult}`;
+  }
+
+  diff = 3;
+  expectedResult = 6;
+  actualResult = calculateCostIncreasingRate(diff)
+
+  if (expectedResult !== actualResult) {
+    throw `Failed calculateCostIncreasingRate for ${diff}. actualResult: ${actualResult}`;
+  }
+
+  console.log('Completed run of testCalculateCostIncreasingRate successfully')
+
 }
