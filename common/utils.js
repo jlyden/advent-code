@@ -67,6 +67,9 @@ module.exports.avgArray = function(arr) {
   return module.exports.sumArray(arr) / arr.length;
 }
 
+module.exports.sortStringByLetters = function(str) {
+  return str.split('').sort().join('');
+}
 
 /***** TESTS *****/
 //runTests();
@@ -75,6 +78,7 @@ function runTests() {
   testObjectsEqual();
   testRange();
   testSumArray();
+  testSortString();
 }
 
 function testObjectsEqual() {
@@ -195,7 +199,7 @@ function testRange() {
     throw `Failed: testRange with expectedResult5To1: ${actualResult}`;
   }
 
-  console.log('Completed run of testRange successfully.')
+  console.log('Completed run of testRange successfully.');
 }
 
 function testSumArray() {
@@ -236,4 +240,18 @@ function testSumArray() {
   }
 
   console.log('Completed run of testSumArray successfully.')
+}
+
+function testSortString() {
+  const sortString = module.exports.sortString;
+
+  const testStr = 'nshgkfld';
+  let expectedResult = 'dfghklns';
+  let actualResult = sortString(testStr);
+
+  if (expectedResult !== actualResult) {
+    throw `Failed: sortString; actualResult: ${actualResult}`;
+  }
+
+  console.log('Completed run of testSortString successfully.')
 }
