@@ -1,3 +1,4 @@
+const arrayUtils = require('../common/array-utils.js');
 const fileUtils = require('../common/file-utils.js');
 const utils = require('../common/utils.js');
 
@@ -50,7 +51,7 @@ function calculateCostIncreasingRate(diff) {
     return diff;
   }
   const range = utils.range(1, diff);
-  return utils.sumArray(range);
+  return arrayUtils.sumArray(range);
 }
 
 function getCostsToMoveCrabsToAllPositions(collectedCrabPositions, positionMin, positionMax, costPerDiff) {

@@ -3,9 +3,9 @@ const utils = require('../common/utils.js');
 
 const STAR = -1;
 
-//console.log(getScoreOfWinningBingoBoard(returnFirst = true));
-//console.log(getScoreOfWinningBingoBoard(returnFirst = false));
-runTests();
+console.log(getScoreOfWinningBingoBoard(returnFirst = true));
+console.log(getScoreOfWinningBingoBoard(returnFirst = false));
+//runTests();
 
 /**
  * @param returnFirst bool true to return first winning board; false to return last

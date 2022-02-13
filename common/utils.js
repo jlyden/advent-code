@@ -50,26 +50,13 @@ module.exports.range = function(start, end) {
   }
 }
 
-module.exports.sumArray = function(arr) {
-  if (!Array.isArray(arr) || !isNumberArray(arr)) {
-    throw `Invalid param: ${JSON.stringify(arr)}`;
+module.exports.splitStringOnSpaces = function(input) {
+  if (typeof input !== 'string') {
+    throw 'Error: Input must be a string.';
   }
-
-  return arr.reduce((a, b) => a + b);
+  return input.split(/\s+/).filter(element => element.length > 0);
 }
 
-function isNumberArray(arr) {
-  const strings = arr.filter(x => typeof x === 'string');
-  return strings.length === 0;
-}
-
-module.exports.avgArray = function(arr) {
-  return module.exports.sumArray(arr) / arr.length;
-}
-
-module.exports.sortStringByLetters = function(str) {
-  return str.split('').sort().join('');
-}
 
 /***** TESTS *****/
 //runTests();
@@ -77,8 +64,7 @@ module.exports.sortStringByLetters = function(str) {
 function runTests() {
   testObjectsEqual();
   testRange();
-  testSumArray();
-  testSortString();
+  testSplitStringOnSpaces();
 }
 
 function testObjectsEqual() {
@@ -202,56 +188,34 @@ function testRange() {
   console.log('Completed run of testRange successfully.');
 }
 
-function testSumArray() {
-  const sumArray = module.exports.sumArray;
+function testSplitStringOnSpaces() {
+  const objectsEqual = module.exports.objectsEqual;
+  const splitStringOnSpaces = module.exports.splitStringOnSpaces;
 
-  const numberArray = [ 22, 44, 5, 9 ];
-  let expectedResult = 80;
-  let actualResult = sumArray(numberArray);
+  const strWithSingleSpaces = 'abc def ghi';
+  let expectedResult = [ 'abc', 'def', 'ghi' ];
+  let actualResult = splitStringOnSpaces(strWithSingleSpaces);
 
-  if (expectedResult !== actualResult) {
-    throw `Failed: testSumArray: ${actualResult}`;
+  if (!objectsEqual(expectedResult, actualResult)) {
+    throw `Failed: testSplitStringOnSpaces with strWithSingleSpaces: ${actualResult}`;
   }
 
-  const negativeNumberArray = [ -22, 44, 5, -9 ];
-  expectedResult = 18;
-  actualResult = sumArray(negativeNumberArray);
+  const strWithExtraSpaces = ' abc  def                     ghi';
+  expectedResult = [ 'abc', 'def', 'ghi' ];
+  actualResult = splitStringOnSpaces(strWithExtraSpaces);
 
-  if (expectedResult !== actualResult) {
-    throw `Failed: testSumArray with neg nums: ${actualResult}`;
+  if (!objectsEqual(expectedResult, actualResult)) {
+    throw `Failed: testSplitStringOnSpaces with strWithExtraSpaces: ${actualResult}`;
   }
 
-  let expectedError = 'Invalid param: 6';
+  expectedError = 'Error: Input must be a string.';
   try {
-    actualResult = sumArray(6);
+    actualResult = splitStringOnSpaces(12345);
   } catch (error) {
     if (error !== expectedError) {
-      throw `Failed testSumArray with non-array param - wrong error message`;
+      throw `Failed testSplitStringOnSpaces with non-string input - wrong error message`;
     }
   }
 
-  expectedError = 'Invalid param: [6,4,15,"foo",76,"bar"]';
-  try {
-    actualResult = sumArray([6, 4, 15, 'foo', 76, 'bar' ]);
-  } catch (error) {
-    if (error !== expectedError) {
-      throw `Failed testSumArray with string array param - wrong error message`;
-    }
-  }
-
-  console.log('Completed run of testSumArray successfully.')
-}
-
-function testSortString() {
-  const sortString = module.exports.sortString;
-
-  const testStr = 'nshgkfld';
-  let expectedResult = 'dfghklns';
-  let actualResult = sortString(testStr);
-
-  if (expectedResult !== actualResult) {
-    throw `Failed: sortString; actualResult: ${actualResult}`;
-  }
-
-  console.log('Completed run of testSortString successfully.')
+  console.log('Completed run of testRange successfully.');
 }

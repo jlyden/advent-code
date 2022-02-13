@@ -7,8 +7,8 @@ const LINE_TYPES = {
   DIAGONAL: 2
 }
 
-//console.log(getCountOfPointsWithTwoPlusOverlappingVents());
-//console.log(getCountOfPointsWithTwoPlusOverlappingVents(includeDiagonals = true)); // 24321 too high
+console.log(getCountOfPointsWithTwoPlusOverlappingVents());
+console.log(getCountOfPointsWithTwoPlusOverlappingVents(includeDiagonals = true));
 runTests();
 
 function getCountOfPointsWithTwoPlusOverlappingVents(includeDiagonals = false, returnLimit = null) {

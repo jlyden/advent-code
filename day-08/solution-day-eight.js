@@ -1,9 +1,10 @@
+const arrayUtils = require('../common/array-utils.js');
 const fileUtils = require('../common/file-utils.js');
 const utils = require('../common/utils.js');
 
 //console.log(getCountOfEasyDigitsInOutputValues()); // 495
-getSumOfOutputValues(3);
-//runTests();
+//getSumOfOutputValues(1);
+runTests();
 
 function getCountOfEasyDigitsInOutputValues(returnLimit = null) {
   const notes = fileUtils.getContents('day-08/input.txt', returnLimit);
@@ -28,14 +29,14 @@ function prepNote(note, includeSignalPatterns = false) {
   return [ signalPatterns, output];
 }
 
-// TODO: write test
+// tested
 function prepSignalPatterns(signalPatternsRaw) {
-  let signalPatterns = splitStringBySpaces(signalPatternsRaw);
+  let signalPatterns = utils.splitStringOnSpaces(signalPatternsRaw);
   return prepSignalPatternsForAnalysis(signalPatterns);
 }
 
 function prepOutput(outputRaw) {
-  return splitStringBySpaces(outputRaw);
+  return utils.splitStringOnSpaces(outputRaw);
 }
 
 function getEasyDigitCountFromOutput(output) {
@@ -66,33 +67,15 @@ function getSumOfOutputValues(returnLimit = null) {
   return outputValueSum;
 }
 
-const DIGIT_TO_SEGMENTS_MAP = {
-  1: 'cf',
-  7: 'acf',
-  4: 'bdcf',
-  5: 'abdfg',
-  2: 'acdeg',
-  3: 'acdfg',
-  9: 'abcdfg',
-  0: 'abcefg',
-  6: 'abdefg',
-  8: 'abcdefg',
-}
-
 function getOutputValueForNote(note) {
   const [ signalPatterns, output ] = prepNote(note, includeSignalPatterns = true);
 
-  console.log(JSON.stringify(signalPatterns));
   // get signal value mapping for note
+  const segmentMap = prepSegmentMap(signalPatterns);
 
   // get output value digits
 
   // return output value as an int
-}
-
-// TODO: move to utils and remove dups in sol*.js
-function splitStringBySpaces(str) {
-  return str.split(/\s+/).filter(str => str.length > 0);
 }
 
 // tested (covered by prepSignalPatterns)
@@ -105,17 +88,82 @@ function prepSignalPatternsForAnalysis(signalPatterns) {
     6: [],
     7: [],
   };
-  signalPatterns.forEach(signals => {
-    const sortedSignal = utils.sortStringByLetters(signals);
-    sortedSignalPatterns[sortedSignal.length].push(sortedSignal);
+  signalPatterns.forEach(signalString => {
+    const signals = signalString.split('');
+    sortedSignalPatterns[signals.length].push(signals);
   });
   return sortedSignalPatterns;
 }
 
+const DIGIT_TO_SEGMENTS_MAP = {
+  //digit: code // length
+  1: 'CF',      //2
+  7: 'ACF',     //3
+  4: 'BCDF',    //4
+
+  5: 'ABDFG',   //5
+  2: 'ACDEG',   //5
+  3: 'ACDFG',   //5
+
+  9: 'ABCDFG',  //6
+  0: 'ABCEFG',  //6
+  6: 'ABDEFG',  //6
+
+  8: 'ABCDEFG', //7
+}
+
+// tested
+function prepSegmentMap(signalPatterns) {
+  let segmentMap = {};
+  // 1 = 'CF' (len 2)
+  // 7 = 1 + 'A', so whatever is left after intersection of 7 and 1 === 'A' (len 3)
+  segmentMap.a = arrayUtils.getComplementOfArray(signalPatterns[3][0], signalPatterns[2][0])[0];
+
+  // 4 (len 4) = 1 (len 2) + 'BD'
+  const diffTwoFour = arrayUtils.getComplementOfArray(signalPatterns[4][0], signalPatterns[2][0]);
+
+  // 9,0,6 all len 6; 8 len 7
+  // 6 = 8 - 'C'
+  // 0 = 8 - 'D'
+  // 9 = 8 - 'E'
+  // diff of 6s + 7 = 'CDE'
+  let diffOfLenSixesAndSeven = [];
+  signalPatterns[6].forEach(element => {
+    let value = arrayUtils.getComplementOfArray(signalPatterns[7][0], element)
+    diffOfLenSixesAndSeven.push(value);
+  });
+  const diffSixesSeven = diffOfLenSixesAndSeven.flat();
+
+  // intersection of diff24 and diff6s7 = 'D'
+  segmentMap.d = arrayUtils.getIntersectionOfArrays(diffSixesSeven, diffTwoFour)[0];
+
+  // diff24 - segmentMap['d'] = 'B'
+  segmentMap.b = arrayUtils.getComplementOfArray(diffTwoFour, segmentMap.d)[0];
+
+  // get 'ABDFG'
+  const lenFiveArrayWithB = arrayUtils.getArraysWithValue(signalPatterns[5], segmentMap.b.toString())[0];
+  // pull out ABD (left with 'FG')
+  const justFG = arrayUtils.getComplementOfArray(lenFiveArrayWithB, Object.values(segmentMap).flat());
+  // pull out value NOT in 'CF' = 'G'
+  segmentMap.g = arrayUtils.getComplementOfArray(justFG, signalPatterns[2][0])[0];
+
+  // justFG - segmentMap['g'] = 'F'
+  segmentMap.f = arrayUtils.getComplementOfArray(justFG, segmentMap.g)[0];
+
+  // 1 = 'CF' (len 2) - segmentMap['f'] = 'C'
+  segmentMap.c = arrayUtils.getComplementOfArray(signalPatterns[2][0], segmentMap.f)[0];
+
+  segmentMap.e = arrayUtils.getComplementOfArray(signalPatterns[7][0], Object.values(segmentMap).flat())[0];
+
+  return segmentMap;
+}
+
+
 /***** TESTS *****/
 function runTests() {
-  testGetEasyDigitCountFromNotes();
-  testPrepSignalPatterns();
+//  testGetEasyDigitCountFromNotes();
+//  testPrepSignalPatterns();
+  testPrepSegmentMap();
 }
 
 function testGetEasyDigitCountFromNotes() {
@@ -139,12 +187,20 @@ function testGetEasyDigitCountFromNotes() {
 function testPrepSignalPatterns() {
   let input = 'cdgeb cd cdb gfecbda adgcbe bcdfag aecd bfceg edbfga agdbe';
   let expectedResult = {
-    2: [ 'cd' ],
-    3: [ 'bcd' ],
-    4: [ 'acde' ],
-    5: [ 'bcdeg', 'bcefg', 'abdeg' ],
-    6: [ 'abcdeg', 'abcdfg', 'abdefg' ],
-    7: [ 'abcdefg' ]
+    2: [ [ 'c', 'd' ] ],
+    3: [ [ 'c', 'd', 'b' ] ],
+    4: [ [ 'a', 'e', 'c', 'd' ] ],
+    5: [ 
+      [ 'c', 'd', 'g', 'e', 'b' ],
+      [ 'b', 'f', 'c', 'e', 'g' ],
+      [ 'a', 'g', 'd', 'b', 'e' ],
+    ],
+    6: [ 
+      [ 'a', 'd', 'g', 'c', 'b', 'e' ],
+      [ 'b', 'c', 'd', 'f', 'a', 'g' ],
+      [ 'e', 'd', 'b', 'f', 'g', 'a' ],
+    ],
+    7: [ [ 'g', 'f', 'e', 'c', 'b', 'd', 'a' ] ]
   };
   let actualResult = prepSignalPatterns(input);
 
@@ -153,9 +209,48 @@ function testPrepSignalPatterns() {
   }
 
   input = 'ae cdbeg gefcdb eca ebgfac dcbafeg deag abcde facbd becadg';
+  expectedResult = {
+    2: [ [ 'a', 'e' ] ],
+    3: [ [ 'e', 'c', 'a' ] ],
+    4: [ [ 'd', 'e', 'a', 'g' ] ],
+    5: [ 
+      [ 'c', 'd', 'b', 'e', 'g' ],
+      [ 'a', 'b', 'c', 'd', 'e' ],
+      [ 'f', 'a', 'c', 'b', 'd' ],
+    ],
+    6: [ 
+      [ 'g', 'e', 'f', 'c', 'd', 'b' ],
+      [ 'e', 'b', 'g', 'f', 'a', 'c' ],
+      [ 'b', 'e', 'c', 'a', 'd', 'g' ],
+    ],
+    7: [ [ 'd', 'c', 'b', 'a', 'f', 'e', 'g' ] ]
+  };
+  actualResult = prepSignalPatterns(input);
 
-
-
+  if (!utils.objectsEqual(expectedResult, actualResult)) {
+    throw `testPrepSignalPatterns failed with ${input}. actualResult: ${JSON.stringify(actualResult)}`;
+  }
 
   console.log('Completed run of testPrepSignalPatterns successfully')
+}
+
+function testPrepSegmentMap() {
+  const note = 'acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf';
+  const [ signalPatterns, output ] = prepNote(note, includeSignalPatterns = true);
+  const expectedSegmentMap = {
+    'a': 'd',
+    'b': 'e',
+    'c': 'a',
+    'd': 'f',
+    'e': 'g',
+    'f': 'b',
+    'g': 'c',
+  }
+  actualResult = prepSegmentMap(signalPatterns);
+
+  if (!utils.objectsEqual(expectedSegmentMap, actualResult)) {
+    throw `testPrepSegmentMap failed. actualResult: ${JSON.stringify(actualResult)}`;
+  }
+
+  console.log('Completed run of testPrepSegmentMap successfully')
 }

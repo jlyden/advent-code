@@ -1,15 +1,16 @@
+const arrayUtils = require('../common/array-utils.js');
 const fileUtils = require('../common/file-utils.js');
 const utils = require('../common/utils.js');
 
 console.log(getLanternFishCountAfterDays(80));
 console.log(getLanternFishCountAfterDays(256));
-//runTests();
+runTests();
 
 function getLanternFishCountAfterDays(days, returnLimit = null) {
   const startingFishTimers = fileUtils.getContents('day-06/input.txt', returnLimit, ',');
   let sortedFish = sortFishByTimers(startingFishTimers);
   sortedFish = updateFishAfterDays(sortedFish, days);
-  return utils.sumArray(sortedFish);
+  return arrayUtils.sumArray(sortedFish);
 }
 
 /**
