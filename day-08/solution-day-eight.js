@@ -2,9 +2,9 @@ const arrayUtils = require('../common/array-utils.js');
 const fileUtils = require('../common/file-utils.js');
 const utils = require('../common/utils.js');
 
-console.log(getCountOfEasyDigitsInOutputValues()); // 495
-console.log(getSumOfOutputValues()); // 784783 - too low
-runTests();
+//console.log(getCountOfEasyDigitsInOutputValues()); // 495
+console.log(getSumOfOutputValues(1)); // 784783 - too low
+//runTests();
 
 function getCountOfEasyDigitsInOutputValues(returnLimit = null) {
   const notes = fileUtils.getContents('day-08/input.txt', returnLimit);
@@ -15,7 +15,7 @@ function getCountOfEasyDigitsInOutputValues(returnLimit = null) {
 function getEasyDigitCountFromNotes(notes) {
   let easyDigitCount = 0;
   notes.forEach(note => {
-    const [ signalPatterns, output ] = prepNote(note, includeSignalPatterns = false);
+    const [ _signalPatterns, output ] = prepNote(note, includeSignalPatterns = false);
     easyDigitCount += getEasyDigitCountFromOutput(output);
   });
   return easyDigitCount;
@@ -68,20 +68,26 @@ function getSumOfOutputValues(returnLimit = null) {
   const notes = fileUtils.getContents('day-08/input.txt', returnLimit);
   let outputValueSum = 0;
   notes.forEach(note => {
-    outputValueSum += getOutputValueForNote(note);
+    let noteOutputValue = getOutputValueForNote(note);
+    console.log(`noteOutputValue: ${noteOutputValue}`);
+    outputValueSum += noteOutputValue;  
+//    outputValueSum += getOutputValueForNote(note);
   });
   return outputValueSum;
 }
 
 function getOutputValueForNote(note) {
   const [ signalPatterns, output ] = prepNote(note, includeSignalPatterns = true);
-  const digitMap = prepDigitMap(signalPatterns);
+  console.log(`raw output: ${JSON.stringify(output)}`);
 
-  return getOutputValue(output, digitMap)
+  const [ digitMap, invertSegmentMap ] = prepDigitMap(signalPatterns);
+
+  return getOutputValue(output, digitMap, invertSegmentMap);
 }
 
 // TODO: test?
-function getOutputValue(output, digitMap) {
+function getOutputValue(output, digitMap, invertSegmentMap) {
+  console.log(digitMap);
   const LEN_TO_EASY_DIGIT_MAP = {
     2: 1,
     3: 7,
@@ -91,21 +97,33 @@ function getOutputValue(output, digitMap) {
   let outputDigits = [];
 
   output.forEach(digit => {
+    digit = utils.alphabetizeString(digit);
+    console.log(`digit: ${digit}`);
+
     const digitLen = digit.length;
-    isEasyDigit(digitLen)
-      ? outputDigits.push(LEN_TO_EASY_DIGIT_MAP[digitLen])
-      : outputDigits.push(digitMap[utils.alphabetizeString(digit)]);
+    let digitValue = isEasyDigit(digitLen)
+      ? LEN_TO_EASY_DIGIT_MAP[digitLen]
+      : digitMap[digit];
+
+    if (!digitValue) {
+      // TODO: Instead of throwing error, calcuate digit based on invertSegmentMap
+      throw `Error: undefined digitValue for ${digit}`;
+    }
+    console.log(`digitValue: ${digitValue}`);
+    outputDigits.push(digitValue);
   });
   return parseInt(outputDigits.join(''));
 }
 
 function prepDigitMap(signalPatterns) {
-  const segmentMap = prepSegmentMap(signalPatterns);
-  return prepNoteSegmentToDigitMap(segmentMap);
+  const [ segmentMap, invertSegmentMap ] = prepSegmentMaps(signalPatterns);
+  console.log(segmentMap);
+  console.log(invertSegmentMap);
+  return [ prepNoteSegmentToDigitMap(segmentMap), invertSegmentMap ];
 }
 
-// tested
-function prepSegmentMap(signalPatterns) {
+// tested: TODO: update test for invert
+function prepSegmentMaps(signalPatterns) {
   let segmentMap = {};
   segmentMap.a = arrayUtils.getComplementOfArray(signalPatterns[3][0], signalPatterns[2][0]);
 
@@ -122,7 +140,9 @@ function prepSegmentMap(signalPatterns) {
   segmentMap.e = arrayUtils.getComplementOfArray(signalPatterns[7][0], Object.values(segmentMap).flat());
 
   // credit: https://stackoverflow.com/a/38829074
-  return Object.fromEntries(Object.entries(segmentMap).map(([k, v]) => [k, v[0]]));
+  segmentMap = Object.fromEntries(Object.entries(segmentMap).map(([k, v]) => [k, v[0]]));
+  const invertSegmentMap = Object.fromEntries(Object.entries(segmentMap).map(([k, v]) => [v, k]));
+  return [ segmentMap, invertSegmentMap ];
 }
 
 // tested in testPrepSegmentMap
@@ -162,6 +182,24 @@ function prepNoteSegmentToDigitMap(segmentMap) {
   }
 
   return noteSegmentToDigitMap;
+}
+
+function getDigitValue() {
+
+}
+
+function transformDigit(noteDigit) {
+  const TRICKY_SEGMENT_TO_DIGIT_MAP = {
+    'abdfg': 5,
+    'acdeg': 2,
+    'acdfg': 3,
+    'abcdfg': 9,
+    'abcefg': 0,
+    'abdefg': 6,
+  }
+
+
+
 }
 
 
@@ -252,7 +290,7 @@ function testPrepSegmentMap() {
     'f': 'b',
     'g': 'c',
   }
-  actualResult = prepSegmentMap(signalPatterns);
+  actualResult = prepSegmentMaps(signalPatterns);
 
   if (!utils.objectsEqual(expectedSegmentMap, actualResult)) {
     throw `testPrepSegmentMap failed. actualResult: ${JSON.stringify(actualResult)}`;
