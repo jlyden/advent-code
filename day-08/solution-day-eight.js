@@ -2,8 +2,8 @@ const arrayUtils = require('../common/array-utils.js');
 const fileUtils = require('../common/file-utils.js');
 const utils = require('../common/utils.js');
 
-//console.log(getCountOfEasyDigitsInOutputValues()); // 495
-//getSumOfOutputValues(1);
+console.log(getCountOfEasyDigitsInOutputValues()); // 495
+console.log(getSumOfOutputValues()); // 784783 - too low
 runTests();
 
 function getCountOfEasyDigitsInOutputValues(returnLimit = null) {
@@ -35,49 +35,6 @@ function prepSignalPatterns(signalPatternsRaw) {
   return prepSignalPatternsForAnalysis(signalPatterns);
 }
 
-function prepOutput(outputRaw) {
-  return utils.splitStringOnSpaces(outputRaw);
-}
-
-function getEasyDigitCountFromOutput(output) {
-  return (output.filter(str => isEasyDigit(str))).length;
-}
-
-function isEasyDigit(str) {
-  /* For context, not used
-  const SEG_TO_DIGIT_MAP = {
-    2: 1,
-    3: 7,
-    4: 4,
-    7: 8,
-    5: [2,3,5],
-    6: [0,6,9],
-  }
-  */
-  const strLen = str.length;
-  return strLen !== 0 && (strLen < 5 || strLen > 6);
-}
-
-function getSumOfOutputValues(returnLimit = null) {
-  const notes = fileUtils.getContents('day-08/input.txt', returnLimit);
-  let outputValueSum = 0;
-  notes.forEach(note => {
-    outputValueSum += getOutputValueForNote(note);
-  });
-  return outputValueSum;
-}
-
-function getOutputValueForNote(note) {
-  const [ signalPatterns, output ] = prepNote(note, includeSignalPatterns = true);
-
-  // get signal value mapping for note
-  const segmentMap = prepSegmentMap(signalPatterns);
-
-  // get output value digits
-
-  // return output value as an int
-}
-
 // tested (covered by prepSignalPatterns)
 function prepSignalPatternsForAnalysis(signalPatterns) {
   let sortedSignalPatterns = {
@@ -95,74 +52,123 @@ function prepSignalPatternsForAnalysis(signalPatterns) {
   return sortedSignalPatterns;
 }
 
-const DIGIT_TO_SEGMENTS_MAP = {
-  //digit: code // length
-  1: 'CF',      //2
-  7: 'ACF',     //3
-  4: 'BCDF',    //4
+function prepOutput(outputRaw) {
+  return utils.splitStringOnSpaces(outputRaw);
+}
 
-  5: 'ABDFG',   //5
-  2: 'ACDEG',   //5
-  3: 'ACDFG',   //5
+function getEasyDigitCountFromOutput(output) {
+  return (output.filter(str => isEasyDigit(str.length))).length;
+}
 
-  9: 'ABCDFG',  //6
-  0: 'ABCEFG',  //6
-  6: 'ABDEFG',  //6
+function isEasyDigit(strLen) {
+  return strLen !== 0 && (strLen < 5 || strLen > 6);
+}
 
-  8: 'ABCDEFG', //7
+function getSumOfOutputValues(returnLimit = null) {
+  const notes = fileUtils.getContents('day-08/input.txt', returnLimit);
+  let outputValueSum = 0;
+  notes.forEach(note => {
+    outputValueSum += getOutputValueForNote(note);
+  });
+  return outputValueSum;
+}
+
+function getOutputValueForNote(note) {
+  const [ signalPatterns, output ] = prepNote(note, includeSignalPatterns = true);
+  const digitMap = prepDigitMap(signalPatterns);
+
+  return getOutputValue(output, digitMap)
+}
+
+// TODO: test?
+function getOutputValue(output, digitMap) {
+  const LEN_TO_EASY_DIGIT_MAP = {
+    2: 1,
+    3: 7,
+    4: 4,
+    7: 8,
+  }
+  let outputDigits = [];
+
+  output.forEach(digit => {
+    const digitLen = digit.length;
+    isEasyDigit(digitLen)
+      ? outputDigits.push(LEN_TO_EASY_DIGIT_MAP[digitLen])
+      : outputDigits.push(digitMap[utils.alphabetizeString(digit)]);
+  });
+  return parseInt(outputDigits.join(''));
+}
+
+function prepDigitMap(signalPatterns) {
+  const segmentMap = prepSegmentMap(signalPatterns);
+  return prepNoteSegmentToDigitMap(segmentMap);
 }
 
 // tested
 function prepSegmentMap(signalPatterns) {
   let segmentMap = {};
-  // 1 = 'CF' (len 2)
-  // 7 = 1 + 'A', so whatever is left after intersection of 7 and 1 === 'A' (len 3)
-  segmentMap.a = arrayUtils.getComplementOfArray(signalPatterns[3][0], signalPatterns[2][0])[0];
+  segmentMap.a = arrayUtils.getComplementOfArray(signalPatterns[3][0], signalPatterns[2][0]);
 
-  // 4 (len 4) = 1 (len 2) + 'BD'
   const diffTwoFour = arrayUtils.getComplementOfArray(signalPatterns[4][0], signalPatterns[2][0]);
+  const diffSixesSeven = getDiffOfSevenAndLenSixes(signalPatterns);
+  segmentMap.d = arrayUtils.getIntersectionOfArrays(diffSixesSeven, diffTwoFour);
+  segmentMap.b = arrayUtils.getComplementOfArray(diffTwoFour, segmentMap.d);
 
-  // 9,0,6 all len 6; 8 len 7
-  // 6 = 8 - 'C'
-  // 0 = 8 - 'D'
-  // 9 = 8 - 'E'
-  // diff of 6s + 7 = 'CDE'
+  const lenFiveArrayWithB = arrayUtils.getArraysWithValue(signalPatterns[5], segmentMap.b.toString())[0];
+  const justFG = arrayUtils.getComplementOfArray(lenFiveArrayWithB, Object.values(segmentMap).flat());
+  segmentMap.g = arrayUtils.getComplementOfArray(justFG, signalPatterns[2][0]);
+  segmentMap.f = arrayUtils.getComplementOfArray(justFG, segmentMap.g);
+  segmentMap.c = arrayUtils.getComplementOfArray(signalPatterns[2][0], segmentMap.f);
+  segmentMap.e = arrayUtils.getComplementOfArray(signalPatterns[7][0], Object.values(segmentMap).flat());
+
+  // credit: https://stackoverflow.com/a/38829074
+  return Object.fromEntries(Object.entries(segmentMap).map(([k, v]) => [k, v[0]]));
+}
+
+// tested in testPrepSegmentMap
+function getDiffOfSevenAndLenSixes(signalPatterns) {
   let diffOfLenSixesAndSeven = [];
   signalPatterns[6].forEach(element => {
     let value = arrayUtils.getComplementOfArray(signalPatterns[7][0], element)
     diffOfLenSixesAndSeven.push(value);
   });
-  const diffSixesSeven = diffOfLenSixesAndSeven.flat();
+  return diffOfLenSixesAndSeven.flat();
+}
 
-  // intersection of diff24 and diff6s7 = 'D'
-  segmentMap.d = arrayUtils.getIntersectionOfArrays(diffSixesSeven, diffTwoFour)[0];
+// TODO: test
+function prepNoteSegmentToDigitMap(segmentMap) {
+  const TRICKY_SEGMENT_TO_DIGIT_MAP = {
+    'abdfg': 5,
+    'acdeg': 2,
+    'acdfg': 3,
+    'abcdfg': 9,
+    'abcefg': 0,
+    'abdefg': 6,
+  }
+    
+  let noteSegmentToDigitMap = {
+    ...TRICKY_SEGMENT_TO_DIGIT_MAP
+  };
 
-  // diff24 - segmentMap['d'] = 'B'
-  segmentMap.b = arrayUtils.getComplementOfArray(diffTwoFour, segmentMap.d)[0];
+  // loop and replace
+  for (const [oldKey, value] of Object.entries(noteSegmentToDigitMap)) {
+    let newKey = '';
+    for (let char of oldKey) {
+      newKey += segmentMap[char];
+    }
+    newKey = utils.alphabetizeString(newKey);
+    noteSegmentToDigitMap[newKey] = value;
+    delete noteSegmentToDigitMap[oldKey];
+  }
 
-  // get 'ABDFG'
-  const lenFiveArrayWithB = arrayUtils.getArraysWithValue(signalPatterns[5], segmentMap.b.toString())[0];
-  // pull out ABD (left with 'FG')
-  const justFG = arrayUtils.getComplementOfArray(lenFiveArrayWithB, Object.values(segmentMap).flat());
-  // pull out value NOT in 'CF' = 'G'
-  segmentMap.g = arrayUtils.getComplementOfArray(justFG, signalPatterns[2][0])[0];
-
-  // justFG - segmentMap['g'] = 'F'
-  segmentMap.f = arrayUtils.getComplementOfArray(justFG, segmentMap.g)[0];
-
-  // 1 = 'CF' (len 2) - segmentMap['f'] = 'C'
-  segmentMap.c = arrayUtils.getComplementOfArray(signalPatterns[2][0], segmentMap.f)[0];
-
-  segmentMap.e = arrayUtils.getComplementOfArray(signalPatterns[7][0], Object.values(segmentMap).flat())[0];
-
-  return segmentMap;
+  return noteSegmentToDigitMap;
 }
 
 
 /***** TESTS *****/
 function runTests() {
-//  testGetEasyDigitCountFromNotes();
-//  testPrepSignalPatterns();
+  testGetEasyDigitCountFromNotes();
+  testPrepSignalPatterns();
   testPrepSegmentMap();
 }
 

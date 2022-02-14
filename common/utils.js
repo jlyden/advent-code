@@ -57,6 +57,12 @@ module.exports.splitStringOnSpaces = function(input) {
   return input.split(/\s+/).filter(element => element.length > 0);
 }
 
+module.exports.alphabetizeString = function(input) {
+  if (typeof input !== 'string') {
+    throw 'Error: Input must be a string.';
+  }
+  return input.split('').sort().join('').trim();
+}
 
 /***** TESTS *****/
 //runTests();
@@ -65,6 +71,7 @@ function runTests() {
   testObjectsEqual();
   testRange();
   testSplitStringOnSpaces();
+  testAlphabetizeString();
 }
 
 function testObjectsEqual() {
@@ -217,5 +224,28 @@ function testSplitStringOnSpaces() {
     }
   }
 
-  console.log('Completed run of testRange successfully.');
+  console.log('Completed run of testSplitStringOnSpaces successfully.');
+}
+
+function testAlphabetizeString() {
+  const alphabetizeString = module.exports.alphabetizeString;
+
+  const startingString = 'febac';
+  let expectedResult = 'abcef';
+  let actualResult = alphabetizeString(startingString);
+
+  if (expectedResult !== actualResult) {
+    throw `Failed: testAlphabetizeString: ${actualResult}`;
+  }
+
+  expectedError = 'Error: Input must be a string.';
+  try {
+    actualResult = alphabetizeString(12345);
+  } catch (error) {
+    if (error !== expectedError) {
+      throw `Failed testAlphabetizeString with non-string input - wrong error message`;
+    }
+  }
+
+  console.log('Completed run of testAlphabetizeString successfully.');
 }
