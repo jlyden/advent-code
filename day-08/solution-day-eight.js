@@ -3,7 +3,7 @@ const fileUtils = require('../common/file-utils.js');
 const utils = require('../common/utils.js');
 
 //console.log(getCountOfEasyDigitsInOutputValues()); // 495
-console.log(getSumOfOutputValues(1)); // 784783 - too low
+console.log(getSumOfOutputValues(25)); // 784783 - too low
 //runTests();
 
 function getCountOfEasyDigitsInOutputValues(returnLimit = null) {
@@ -78,16 +78,12 @@ function getSumOfOutputValues(returnLimit = null) {
 
 function getOutputValueForNote(note) {
   const [ signalPatterns, output ] = prepNote(note, includeSignalPatterns = true);
-  console.log(`raw output: ${JSON.stringify(output)}`);
-
   const [ digitMap, invertSegmentMap ] = prepDigitMap(signalPatterns);
-
   return getOutputValue(output, digitMap, invertSegmentMap);
 }
 
 // TODO: test?
 function getOutputValue(output, digitMap, invertSegmentMap) {
-  console.log(digitMap);
   const LEN_TO_EASY_DIGIT_MAP = {
     2: 1,
     3: 7,
@@ -98,18 +94,15 @@ function getOutputValue(output, digitMap, invertSegmentMap) {
 
   output.forEach(digit => {
     digit = utils.alphabetizeString(digit);
-    console.log(`digit: ${digit}`);
 
     const digitLen = digit.length;
     let digitValue = isEasyDigit(digitLen)
       ? LEN_TO_EASY_DIGIT_MAP[digitLen]
-      : digitMap[digit];
+      : getDigitValue(digit, invertSegmentMap);
 
     if (!digitValue) {
-      // TODO: Instead of throwing error, calcuate digit based on invertSegmentMap
-      throw `Error: undefined digitValue for ${digit}`;
+      throw `Error: undefined digitValue for ${digit} against ${JSON.stringify(invertSegmentMap)}`;
     }
-    console.log(`digitValue: ${digitValue}`);
     outputDigits.push(digitValue);
   });
   return parseInt(outputDigits.join(''));
@@ -117,8 +110,6 @@ function getOutputValue(output, digitMap, invertSegmentMap) {
 
 function prepDigitMap(signalPatterns) {
   const [ segmentMap, invertSegmentMap ] = prepSegmentMaps(signalPatterns);
-  console.log(segmentMap);
-  console.log(invertSegmentMap);
   return [ prepNoteSegmentToDigitMap(segmentMap), invertSegmentMap ];
 }
 
@@ -157,15 +148,39 @@ function getDiffOfSevenAndLenSixes(signalPatterns) {
 
 // TODO: test
 function prepNoteSegmentToDigitMap(segmentMap) {
+  // double checked
   const TRICKY_SEGMENT_TO_DIGIT_MAP = {
-    'abdfg': 5,
-    'acdeg': 2,
-    'acdfg': 3,
-    'abcdfg': 9,
-    'abcefg': 0,
-    'abdefg': 6,
+    'bdf': 5,
+    'cde': 2,
+    'cdf': 3,
+    'bcdf': 9,
+    'bcef': 0,
+    'bdef': 6,
   }
-    
+
+  // DROP a,g
+  const SEGMENT_TO_DIGIT_MAP_FIVES = {
+    'bdf': 5,
+    'cde': 2,
+    'cdf': 3,
+  }
+
+  // DROP b,f
+  const SEGMENT_TO_DIGIT_MAP_SIXES = {
+    'cd': 9,
+    'ce': 0,
+    'de': 6,
+  }
+
+  const TRICKY_SEGMENT_TO_DIGIT_MAP_SHORTER = {
+    'bdf': 5,
+    'cde': 2,
+    'cdf': 3,
+    'bcdf': 9,
+    'bcef': 0,
+    'bdef': 6,
+  }
+
   let noteSegmentToDigitMap = {
     ...TRICKY_SEGMENT_TO_DIGIT_MAP
   };
@@ -184,22 +199,40 @@ function prepNoteSegmentToDigitMap(segmentMap) {
   return noteSegmentToDigitMap;
 }
 
-function getDigitValue() {
-
+function getDigitValue(digit, invertSegmentMap) {
+  const digitArray = digit.split('');
+  const digitArrayLen = digitArray.length;
+  for(let i=0; i<digitArrayLen; i++) {
+    let key = digitArray.shift();
+    let value = invertSegmentMap[key];
+    if (['a','g'].includes(value)) {
+      // no op
+    } else if (digitArrayLen === 6 && ['b','f'].includes(value)) {
+      // no op
+    } else {
+      digitArray.push(value);
+    }
+  }
+  const shortDigit = digitArray.sort().join('');
+  return transformShortDigit(shortDigit, digitArrayLen);
 }
 
-function transformDigit(noteDigit) {
-  const TRICKY_SEGMENT_TO_DIGIT_MAP = {
-    'abdfg': 5,
-    'acdeg': 2,
-    'acdfg': 3,
-    'abcdfg': 9,
-    'abcefg': 0,
-    'abdefg': 6,
+function transformShortDigit(shortDigit, originalDigitLength) {
+  // dropped a,g
+  const SEGMENT_TO_DIGIT_MAP_FIVES = {
+    'bdf': 5,
+    'cde': 2,
+    'cdf': 3,
   }
 
+  // dropped a,g,b,f
+  const SEGMENT_TO_DIGIT_MAP_SIXES = {
+    'cd': 9,
+    'ce': 0,
+    'de': 6,
+  }
 
-
+  return originalDigitLength === 5 ? SEGMENT_TO_DIGIT_MAP_FIVES[shortDigit] : SEGMENT_TO_DIGIT_MAP_SIXES[shortDigit];
 }
 
 
