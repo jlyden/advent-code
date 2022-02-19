@@ -64,6 +64,13 @@ module.exports.alphabetizeString = function(input) {
   return input.split('').sort().join('').trim();
 }
 
+module.exports.splitStringParseInts = function(input) {
+  if (typeof input !== 'string') {
+    throw 'Error: Input must be a string.';
+  }
+  return input.split('').map(element => parseInt(element));
+}
+
 /***** TESTS *****/
 //runTests();
 
@@ -72,6 +79,7 @@ function runTests() {
   testRange();
   testSplitStringOnSpaces();
   testAlphabetizeString();
+  testSplitStringParseInts();
 }
 
 function testObjectsEqual() {
@@ -248,4 +256,27 @@ function testAlphabetizeString() {
   }
 
   console.log('Completed run of testAlphabetizeString successfully.');
+}
+
+function testSplitStringParseInts() {
+  const objectsEqual = module.exports.objectsEqual;
+  const splitStringParseInts = module.exports.splitStringParseInts;
+
+  const strWithInts = '123456';
+  let expectedResult = [1,2,3,4,5,6];
+  let actualResult = splitStringParseInts(strWithInts);
+
+  if (!objectsEqual(expectedResult, actualResult)) {
+    throw `Failed: testSplitStringParseInts with strWithInts: ${actualResult}`;
+  }
+
+  expectedError = 'Error: Input must be a string.';
+  try {
+    actualResult = splitStringParseInts(12345);
+  } catch (error) {
+    if (error !== expectedError) {
+      throw `Failed testSplitStringParseInts with non-string input - wrong error message`;
+    }
+  }
+  console.log('Completed run of testSplitStringParseInts successfully.');
 }
