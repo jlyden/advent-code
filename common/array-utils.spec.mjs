@@ -1,43 +1,7 @@
-const utils = require('../common/utils.js');
+import { sumArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue } from './array-utils.mjs';
+import { objectsEqual } from './utils.mjs';
 
-module.exports.sumArray = function(arr) {
-  if (!Array.isArray(arr) || !isNumberArray(arr)) {
-    throw `Invalid param: ${JSON.stringify(arr)}`;
-  }
-
-  return arr.reduce((a, b) => a + b);
-}
-
-function isNumberArray(arr) {
-  const strings = arr.filter(x => typeof x === 'string');
-  return strings.length === 0;
-}
-
-module.exports.getComplementOfArray = function(longerArray, shorterArray) {
-  validateArrayOrder(longerArray, shorterArray);
-  return longerArray.filter(x => !shorterArray.includes(x));
-}
-
-module.exports.getIntersectionOfArrays = function(longerArray, shorterArray) {
-  validateArrayOrder(longerArray, shorterArray);
-  return longerArray.filter(x => shorterArray.includes(x));
-}
-
-// TODO: test
-module.exports.getArraysWithValue = function(arrayOfArrays, value) {
-  return arrayOfArrays.filter(subArray => subArray.includes(value));
-}
-
-// tested in testGetComplementOfArray and testGetIntersectionOfArrays
-function validateArrayOrder(arrOne, arrTwo) {
-  if (arrOne.length < arrTwo.length ) {
-    throw 'Error: Please reverse array params so longer array is first';
-  }
-}
-
-
-/***** TESTS *****/
-//runTests();
+runTests();
 
 function runTests() {
   testSumArray();
@@ -47,8 +11,6 @@ function runTests() {
 }
 
 function testSumArray() {
-  const sumArray = module.exports.sumArray;
-
   const numberArray = [ 22, 44, 5, 9 ];
   let expectedResult = 80;
   let actualResult = sumArray(numberArray);
@@ -87,14 +49,12 @@ function testSumArray() {
 }
 
 function testGetComplementOfArray() {
-  const getComplementOfArray = module.exports.getComplementOfArray;
-
   const arrayLenSeven = [ 'a', 'b', 'c', 'd', 'e', 'f', 'g' ];
   let arrayLenSix = [ 'a', 'b', 'd', 'e', 'f', 'g' ];
   let expectedResult = [ 'c' ];
   let actualResult = getComplementOfArray(arrayLenSeven, arrayLenSix);
 
-  if (!utils.objectsEqual(expectedResult, actualResult)) {
+  if (!objectsEqual(expectedResult, actualResult)) {
     throw `testGetComplementOfArray failed. actualResult: ${JSON.stringify(actualResult)}`;
   }
 
@@ -103,11 +63,11 @@ function testGetComplementOfArray() {
   expectedResult = [ 'a' ];
   actualResult = getComplementOfArray(arrayLenThree, arrayLenTwo);
 
-  if (!utils.objectsEqual(expectedResult, actualResult)) {
+  if (!objectsEqual(expectedResult, actualResult)) {
     throw `testGetComplementOfArray failed. actualResult: ${JSON.stringify(actualResult)}`;
   }
 
-  expectedError = 'Error: Please reverse array params so longer array is first';
+  let expectedError = 'Error: Please reverse array params so longer array is first';
   try {
     actualResult = getComplementOfArray(arrayLenTwo, arrayLenThree);
   } catch (error) {
@@ -120,14 +80,12 @@ function testGetComplementOfArray() {
 }
 
 function testGetIntersectionOfArrays() {
-  const getIntersectionOfArrays = module.exports.getIntersectionOfArrays;
-
   const arrayOne = [ 'a', 'b', 'c', 'd', 'g' ];
   let arrayTwo = [ 'b', 'd', 'e', 'f', 'g' ];
   let expectedResult = [ 'b', 'd', 'g' ];
   let actualResult = getIntersectionOfArrays(arrayOne, arrayTwo);
 
-  if (!utils.objectsEqual(expectedResult, actualResult)) {
+  if (!objectsEqual(expectedResult, actualResult)) {
     throw `testGetIntersectionOfArrays failed. actualResult: ${JSON.stringify(actualResult)}`;
   }
 
@@ -136,11 +94,11 @@ function testGetIntersectionOfArrays() {
   expectedResult = [ 'c', 'f' ];
   actualResult = getIntersectionOfArrays(arrayLenThree, arrayLenTwo);
 
-  if (!utils.objectsEqual(expectedResult, actualResult)) {
+  if (!objectsEqual(expectedResult, actualResult)) {
     throw `testGetIntersectionOfArrays failed. actualResult: ${JSON.stringify(actualResult)}`;
   }
 
-  expectedError = 'Error: Please reverse array params so longer array is first';
+  let expectedError = 'Error: Please reverse array params so longer array is first';
   try {
     actualResult = getIntersectionOfArrays(arrayLenTwo, arrayLenThree);
   } catch (error) {
@@ -153,8 +111,6 @@ function testGetIntersectionOfArrays() {
 }
 
 function testGetArraysWithValue() {
-  const getArraysWithValue = module.exports.getArraysWithValue;
-
   const fiveElementArrays = [
     [ 'A', 'B', 'D', 'F', 'G' ],
     [ 'A', 'C', 'D', 'E', 'G' ],
@@ -167,22 +123,22 @@ function testGetArraysWithValue() {
   ];
 
   let actualResult = getArraysWithValue(fiveElementArrays, 'B');
-  if (!utils.objectsEqual(arrayWithB, actualResult)) {
+  if (!objectsEqual(arrayWithB, actualResult)) {
     throw `testGetArraysWithValue failed for 'B'. actualResult: ${JSON.stringify(actualResult)}`;
   }
 
   actualResult = getArraysWithValue(fiveElementArrays, 'F');
-  if (!utils.objectsEqual(arraysWithFs, actualResult)) {
+  if (!objectsEqual(arraysWithFs, actualResult)) {
     throw `testGetArraysWithValue failed for 'F'. actualResult: ${JSON.stringify(actualResult)}`;
   }
 
   actualResult = getArraysWithValue(fiveElementArrays, 'D');
-  if (!utils.objectsEqual(fiveElementArrays, actualResult)) {
+  if (!objectsEqual(fiveElementArrays, actualResult)) {
     throw `testGetArraysWithValue failed for 'D'. actualResult: ${JSON.stringify(actualResult)}`;
   }
 
   actualResult = getArraysWithValue(fiveElementArrays, 'X');
-  if (!utils.objectsEqual([], actualResult)) {
+  if (!objectsEqual([], actualResult)) {
     throw `testGetArraysWithValue failed for 'x'. actualResult: ${JSON.stringify(actualResult)}`;
   }
 

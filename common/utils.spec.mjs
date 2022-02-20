@@ -1,90 +1,15 @@
-module.exports.objectsEqual = function (a, b) {
-  const objectsEqual = module.exports.objectsEqual;
+import { objectsEqual, range, splitStringOnSpaces, splitStringParseInts } from './utils.mjs';
 
-  if (isPrimative(a)) {
-    return a === b;
-  }
-
-  if (Array.isArray(a)) {
-    const aLen = a.length;
-    if (aLen !== b.length) {
-      return false;
-    }
-
-    for(let i=0; i<aLen; i++) {
-      if (!objectsEqual(a[i], b[i])){
-        return false;
-      };
-    }
-  } else {
-    if (Object.keys(a).length !== Object.keys(b).length) {
-      return false;
-    }
-
-    for (const [key, value] of Object.entries(a)) {
-      if (!objectsEqual(value, b[key])){
-        return false;
-      };
-    }
-  }
-
-  return true;
-}
-
-function isPrimative(a) {
-  const primatives = ['string', 'number', 'bigint', 'boolean'];
-  return primatives.indexOf(typeof a) !== -1;
-}
-
-module.exports.range = function(start, end) {
-  if (start === end) {
-    return [ start ];
-  }
-  const length = Math.abs(end - start) + 1;
-
-  if(end > start) {
-    // credit: https://dev.to/mbrookes/comment/k2ff
-    return Array.from({ length }, (_, i) => start + i);
-  } else {
-    return Array.from({ length }, (_, i) => start - i);
-  }
-}
-
-module.exports.splitStringOnSpaces = function(input) {
-  if (typeof input !== 'string') {
-    throw 'Error: Input must be a string.';
-  }
-  return input.split(/\s+/).filter(element => element.length > 0);
-}
-
-module.exports.alphabetizeString = function(input) {
-  if (typeof input !== 'string') {
-    throw 'Error: Input must be a string.';
-  }
-  return input.split('').sort().join('').trim();
-}
-
-module.exports.splitStringParseInts = function(input) {
-  if (typeof input !== 'string') {
-    throw 'Error: Input must be a string.';
-  }
-  return input.split('').map(element => parseInt(element)).filter(element => !isNaN(element));
-}
-
-/***** TESTS *****/
-//runTests();
+runTests();
 
 function runTests() {
   testObjectsEqual();
   testRange();
   testSplitStringOnSpaces();
-  testAlphabetizeString();
   testSplitStringParseInts();
 }
 
 function testObjectsEqual() {
-  const objectsEqual = module.exports.objectsEqual;
-
   const baseObject = {
     aString: 'cheese',
     aNumber: 5,
@@ -169,9 +94,6 @@ function testObjectsEqual() {
 }
 
 function testRange() {
-  const range = module.exports.range;
-  const objectsEqual = module.exports.objectsEqual;
-
   const expectedResult0To5 = [0, 1, 2, 3, 4, 5];
   let actualResult = range(0,5);
 
@@ -204,9 +126,6 @@ function testRange() {
 }
 
 function testSplitStringOnSpaces() {
-  const objectsEqual = module.exports.objectsEqual;
-  const splitStringOnSpaces = module.exports.splitStringOnSpaces;
-
   const strWithSingleSpaces = 'abc def ghi';
   let expectedResult = [ 'abc', 'def', 'ghi' ];
   let actualResult = splitStringOnSpaces(strWithSingleSpaces);
@@ -223,7 +142,7 @@ function testSplitStringOnSpaces() {
     throw `Failed: testSplitStringOnSpaces with strWithExtraSpaces: ${actualResult}`;
   }
 
-  expectedError = 'Error: Input must be a string.';
+  let expectedError = 'Error: Input must be a string.';
   try {
     actualResult = splitStringOnSpaces(12345);
   } catch (error) {
@@ -235,33 +154,7 @@ function testSplitStringOnSpaces() {
   console.log('Completed run of testSplitStringOnSpaces successfully.');
 }
 
-function testAlphabetizeString() {
-  const alphabetizeString = module.exports.alphabetizeString;
-
-  const startingString = 'febac';
-  let expectedResult = 'abcef';
-  let actualResult = alphabetizeString(startingString);
-
-  if (expectedResult !== actualResult) {
-    throw `Failed: testAlphabetizeString: ${actualResult}`;
-  }
-
-  expectedError = 'Error: Input must be a string.';
-  try {
-    actualResult = alphabetizeString(12345);
-  } catch (error) {
-    if (error !== expectedError) {
-      throw `Failed testAlphabetizeString with non-string input - wrong error message`;
-    }
-  }
-
-  console.log('Completed run of testAlphabetizeString successfully.');
-}
-
 function testSplitStringParseInts() {
-  const objectsEqual = module.exports.objectsEqual;
-  const splitStringParseInts = module.exports.splitStringParseInts;
-
   const strWithInts = '123456';
   let expectedResult = [1,2,3,4,5,6];
   let actualResult = splitStringParseInts(strWithInts);
@@ -278,7 +171,7 @@ function testSplitStringParseInts() {
     throw `Failed: testSplitStringParseInts with strWithIntsAndNonInts: ${actualResult}`;
   }
 
-  expectedError = 'Error: Input must be a string.';
+  let expectedError = 'Error: Input must be a string.';
   try {
     actualResult = splitStringParseInts(12345);
   } catch (error) {

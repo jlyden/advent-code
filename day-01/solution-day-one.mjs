@@ -1,4 +1,4 @@
-const fileUtils = require('../common/file-utils.js');
+import { getContents } from '../common/file-utils.mjs';
 
 console.log(calculateIndividualIncreases());
 console.log(calculateSlidingWindowIncreases(3));
@@ -9,7 +9,7 @@ function calculateIndividualIncreases(returnLimit = null) {
   let currentDepth;
   
   try {
-    const depths = fileUtils.getContents('day-01/input.txt', returnLimit);
+    const depths = getContents('day-01/input.txt', returnLimit);
     depths.forEach(depth => {
       currentDepth = parseInt(depth);
 
@@ -33,7 +33,7 @@ function calculateSlidingWindowIncreases(windowSize = 3, returnLimit = null) {
   let currentSum;
   
   try {
-    const depths = fileUtils.getContents('day-01/input.txt', returnLimit);
+    const depths = getContents('day-01/input.txt', returnLimit);
     const totalDepthWindows = depths.length-2;
 
     for(let i=0; i<totalDepthWindows; i++) {

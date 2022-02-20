@@ -1,191 +1,8 @@
-const fileUtils = require('../common/file-utils.js');
-const utils = require('../common/utils.js');
+import { objectsEqual } from '../common/utils.mjs';
+import { prepBoardData, updateBoardDataForCalledNumber, getIndexesOfAllStarsInRow, checkForWinner, checkForColumnOfStars, calculateWinningBoardScore } from './solution-day-four.mjs';
 
-const STAR = -1;
+runTests();
 
-console.log(getScoreOfWinningBingoBoard(returnFirst = true));
-console.log(getScoreOfWinningBingoBoard(returnFirst = false));
-//runTests();
-
-/**
- * @param returnFirst bool true to return first winning board; false to return last
- * @param returnLimit number | null 
- * @returns number
- */
-function getScoreOfWinningBingoBoard(returnFirst = true, returnLimit = null) {
-  try {
-    const inputFileContents = fileUtils.getContents('day-04/input.txt', returnLimit);
-    const [ calledNumbers, bingoBoards ] = prepareDataObjects(inputFileContents);
-    const [ lastNumberCalled, winningBoard ] = findWinningBoard(calledNumbers, bingoBoards, returnFirst);
-    return calculateWinningBoardScore(lastNumberCalled, winningBoard);
-  } catch(error) {
-    console.log(error)
-  }
-}
-
-function prepareDataObjects(contents) {
-  // First row is comma-delimited string of numbers
-  const calledNumbers = (contents.shift()).split(',').map(num => parseInt(num));
-
-  const bingoBoards = prepareBingoBoards(contents);
-  return [ calledNumbers, bingoBoards ];
-}
-
-function prepareBingoBoards(fullArray) {
-  const fullArrayLen = fullArray.length;
-  const chunkSize = 6; // blank row precedes 5 rows of numbers
-  let bingoBoards = [];
-
-  for (let i=0; i<fullArrayLen; i+=chunkSize) {
-    let chunk = fullArray.slice(i, i+chunkSize);
-    let boardData = prepBoardData(chunk);
-    bingoBoards.push(boardData);
-  }
-  
-  return bingoBoards;
-}
-
-// tested
-function prepBoardData(chunk) {
-  let blankRow = chunk.shift(); // remove leading blank row (empty array)
-  if (blankRow.length > 0) {
-    throw `Error: Blank row was not - check line endings; blankRow = ${blankRow}`;
-  }
-
-  let board = [];
-  chunk.forEach(row => {
-    board.push(row.split(/\s+/).filter(char => char.length > 0).map(num => parseInt(num)));
-  });
-
-  if (board.length !== 5) {
-    throw `Board assembly failed: i = ${i}; board = ${JSON.stringify(board)}`;
-  }
-
-  let boardData = {
-    starCount: 0,
-    board,
-    alreadyWon: false,
-  }
-  return boardData;
-}
-
-/**
- * @param calledNumbers number[]
- * @param bingoBoards boardData[]
- * @param returnFirst bool true to return first winning board; false to return last
- * @returns 
- */
-function findWinningBoard(calledNumbers, bingoBoards, returnFirst) {
-  const bingoBoardsLen = bingoBoards.length;
-  let winningBoardCount = 0;
-
-  // loop through numbers
-  for (let num of calledNumbers) {
-
-    // loop through boards
-    for (let boardData of bingoBoards) {
-
-      boardData = updateBoardDataForCalledNumber(boardData, num);
-
-      if (!boardData.alreadyWon && boardData.starCount > 4) {
-        const isWinner = checkForWinner(boardData.board);
-        if (isWinner) {
-          boardData.alreadyWon = true;
-          winningBoardCount++;
-          if (returnFirst & winningBoardCount > 0) {
-            return [ num, boardData.board ];
-          } else if (winningBoardCount === bingoBoardsLen) {
-            return [ num, boardData.board ];
-          }
-        }
-      }
-    }
-  }
-}
-
-// tested
-function updateBoardDataForCalledNumber(boardData, calledNumber) {
-  // loop through rows
-  boardData.board.forEach(row => {
-    // look for calledNumber
-    const calledNumberIndex = row.indexOf(calledNumber);
-
-    if (calledNumberIndex !== -1) {
-      // change value to -1 (our 'mark') and increment count
-      row[calledNumberIndex] = STAR;
-      boardData.starCount ++;
-    }
-  });
-
-  return boardData;
-}
-
-// tested
-function checkForWinner(board) {
-  const rowOfStars = Array(5).fill(STAR);
-  const indexesOfStarsByRow = [];
-
-  // Check rows
-  for (row of board) {
-    if (utils.objectsEqual(row, rowOfStars)) {
-      // Board is winner because this row is all stars
-      return true;
-    }
-
-    // Store indexes to use in Column check
-    const indexesOfAllStarsInRow = getIndexesOfAllStarsInRow(row, []);
-    indexesOfStarsByRow.push(indexesOfAllStarsInRow);
-  };
-
-  // Check columns
-  return checkForColumnOfStars(indexesOfStarsByRow);
-}
-
-// tested
-function getIndexesOfAllStarsInRow(row, indexes) {
-  const FOUND_STAR = -2;
-
-  const copyOfRow = [ ...row];
-  const indexOfStar = copyOfRow.indexOf(STAR);
-
-  if (indexOfStar === -1) {
-    return indexes;
-  } else {
-    indexes.push(indexOfStar);
-    copyOfRow[indexOfStar] = FOUND_STAR;
-    const atEndOfRow = indexOfStar === (row.length - 1)
-    return atEndOfRow ? indexes : getIndexesOfAllStarsInRow(copyOfRow, indexes);
-  }
-}
-
-// tested
-function checkForColumnOfStars(indexesOfStarsByRow) {
-  if (indexesOfStarsByRow.length !== 5) {
-    throw `Error: getIndexesOfAllStarsInRow input wrong length: ${JSON.stringify(indexesOfStarsByRow)}`;
-  }
-
-  const intersectionOfStarIndexes = indexesOfStarsByRow.reduce(findArrayIntersection)
-
-  // A non-empty intersection of all rows' indexesOfStars arrays => Bingo column!
-  return intersectionOfStarIndexes.length > 0;
-}
-
-// tested (Covered by testCheckForColumnOfStars)
-function findArrayIntersection(a, b) {
-  // credit: https://medium.com/@alvaro.saburido/set-theory-for-arrays-in-es6-eb2f20a61848
-  return a.filter(x => b.includes(x));
-}
-
-// tested
-function calculateWinningBoardScore(lastNumberCalled, winningBoard) {
-  const sumOfUnmarkedNumbers = winningBoard
-                                .flat()
-                                .filter(value => value !== STAR)
-                                .reduce((a,b) => a + b);
-  return sumOfUnmarkedNumbers * lastNumberCalled;
-}
-
-/***** TESTS *****/
 function runTests() {
   testPrepBoardData();
   testUpdateBoardDataForCalledNumber();
@@ -218,7 +35,7 @@ function testPrepBoardData() {
   }
 
   let actualBoardData = prepBoardData(testChunk);
-  if (!utils.objectsEqual(expectedBoardData, actualBoardData)) {
+  if (!objectsEqual(expectedBoardData, actualBoardData)) {
     throw `testPrepBoardData failed with testChunk. actualResult: ${JSON.stringify(actualBoardData)}`;
   }
 
@@ -244,7 +61,7 @@ function testPrepBoardData() {
   }
 
   actualBoardData = prepBoardData(testChunkWithZero);
-  if (!utils.objectsEqual(expectedBoardDataWithZero, actualBoardData)) {
+  if (!objectsEqual(expectedBoardDataWithZero, actualBoardData)) {
     throw `testPrepBoardData failed with testChunkWithZero. actualResult: ${JSON.stringify(actualBoardData)}`;
   }
 
@@ -279,13 +96,13 @@ function testUpdateBoardDataForCalledNumber() {
   }
 
   const actualBoardDataAfterNumber0 = updateBoardDataForCalledNumber(startingBoardData, testCalledNumbers[0]);
-  if (!utils.objectsEqual(expectedBoardDataAfterNumber0, actualBoardDataAfterNumber0)) {
+  if (!objectsEqual(expectedBoardDataAfterNumber0, actualBoardDataAfterNumber0)) {
     throw `testUpdateBoardDataForCalledNumber failed on Number0. actualResult: ${JSON.stringify(actualBoardDataAfterNumber0)}`;
   }
 
   // testCalledNumbers[1] is not on board, so we expect same result as previous number (no change to board)
   const actualBoardDataAfterNumber1 = updateBoardDataForCalledNumber(actualBoardDataAfterNumber0, testCalledNumbers[1]);
-  if (!utils.objectsEqual(expectedBoardDataAfterNumber0, actualBoardDataAfterNumber1)) {
+  if (!objectsEqual(expectedBoardDataAfterNumber0, actualBoardDataAfterNumber1)) {
     throw `testUpdateBoardDataForCalledNumber failed on Number1. actualResult: ${JSON.stringify(actualBoardDataAfterNumber1)}`;
   }
 
@@ -302,7 +119,7 @@ function testUpdateBoardDataForCalledNumber() {
   }
 
   const actualBoardDataAfterNumber2 = updateBoardDataForCalledNumber(actualBoardDataAfterNumber1, testCalledNumbers[2]);
-  if (!utils.objectsEqual(expectedBoardDataAfterNumber2, actualBoardDataAfterNumber2)) {
+  if (!objectsEqual(expectedBoardDataAfterNumber2, actualBoardDataAfterNumber2)) {
     throw `testUpdateBoardDataForCalledNumber failed on Number2. actualResult: ${JSON.stringify(actualBoardDataAfterNumber2)}`;
   }
 
@@ -319,7 +136,7 @@ function testUpdateBoardDataForCalledNumber() {
   }
 
   const actualBoardDataAfterNumber3 = updateBoardDataForCalledNumber(actualBoardDataAfterNumber2, testCalledNumbers[3]);
-  if (!utils.objectsEqual(expectedBoardDataAfterNumber3, actualBoardDataAfterNumber3)) {
+  if (!objectsEqual(expectedBoardDataAfterNumber3, actualBoardDataAfterNumber3)) {
     throw `testUpdateBoardDataForCalledNumber failed on Number4. actualResult: ${JSON.stringify(actualBoardDataAfterNumber3)}`;
   }
 
@@ -336,7 +153,7 @@ function testUpdateBoardDataForCalledNumber() {
   }
 
   const actualBoardDataAfterNumber4 = updateBoardDataForCalledNumber(actualBoardDataAfterNumber3, testCalledNumbers[4]);
-  if (!utils.objectsEqual(expectedBoardDataAfterNumber4, actualBoardDataAfterNumber4)) {
+  if (!objectsEqual(expectedBoardDataAfterNumber4, actualBoardDataAfterNumber4)) {
     throw `testUpdateBoardDataForCalledNumber failed on Number4. actualResult: ${JSON.stringify(actualBoardDataAfterNumber4)}`;
   }
 
@@ -353,7 +170,7 @@ function testUpdateBoardDataForCalledNumber() {
   }
 
   const actualBoardDataAfterNumber5 = updateBoardDataForCalledNumber(actualBoardDataAfterNumber4, testCalledNumbers[5]);
-  if (!utils.objectsEqual(expectedBoardDataAfterNumber5, actualBoardDataAfterNumber5)) {
+  if (!objectsEqual(expectedBoardDataAfterNumber5, actualBoardDataAfterNumber5)) {
     throw `testUpdateBoardDataForCalledNumber failed on Number5. actualResult: ${JSON.stringify(actualBoardDataAfterNumber5)}`;
   }
 
@@ -370,7 +187,7 @@ function testUpdateBoardDataForCalledNumber() {
   }
 
   const actualBoardDataAfterNumber6 = updateBoardDataForCalledNumber(actualBoardDataAfterNumber5, testCalledNumbers[6]);
-  if (!utils.objectsEqual(expectedBoardDataAfterNumber6, actualBoardDataAfterNumber6)) {
+  if (!objectsEqual(expectedBoardDataAfterNumber6, actualBoardDataAfterNumber6)) {
     throw `testUpdateBoardDataForCalledNumber failed on Number6. actualResult: ${JSON.stringify(actualBoardDataAfterNumber6)}`;
   }
 
@@ -381,49 +198,49 @@ function testGetIndexesOfAllStarsInRow() {
   const rowWithNoStars = [ 5, 26, 12, 65, 9 ];
   const expectedEmpty = [];
   let actualResult = getIndexesOfAllStarsInRow(rowWithNoStars, []);
-  if (!utils.objectsEqual(expectedEmpty, actualResult)) {
+  if (!objectsEqual(expectedEmpty, actualResult)) {
     throw 'Failed on row with no stars';
   }
 
   const rowWithOneStarInPos0 = [ -1, 26, 12, 65, 9 ];
   const expectedPos0 = [ 0 ];
   actualResult = getIndexesOfAllStarsInRow(rowWithOneStarInPos0, []);
-  if (!utils.objectsEqual(expectedPos0, actualResult)) {
+  if (!objectsEqual(expectedPos0, actualResult)) {
     throw 'Failed on rowWithOneStarInPos0';
   }
 
   const rowWithOneStarInPos2 = [ 1, 26, -1, 65, 9 ];
   const expectedPos2 = [ 2 ];
   actualResult = getIndexesOfAllStarsInRow(rowWithOneStarInPos2, []);
-  if (!utils.objectsEqual(expectedPos2, actualResult)) {
+  if (!objectsEqual(expectedPos2, actualResult)) {
     throw 'Failed on rowWithOneStarInPos2';
   }
 
   const rowWithOneStarAtEnd = [ 1, 26, 9, 65, -1 ];
   const expectedPos4 = [ 4 ];
   actualResult = getIndexesOfAllStarsInRow(rowWithOneStarAtEnd, []);
-  if (!utils.objectsEqual(expectedPos4, actualResult)) {
+  if (!objectsEqual(expectedPos4, actualResult)) {
     throw 'Failed on rowWithOneStarAtEnd';
   }
 
   const rowWithTwoStarsPos0And2 = [ -1, 26, -1, 65, 9 ];
   const expectedPos0And2 = [ 0, 2 ];
   actualResult = getIndexesOfAllStarsInRow(rowWithTwoStarsPos0And2, []);
-  if (!utils.objectsEqual(expectedPos0And2, actualResult)) {
+  if (!objectsEqual(expectedPos0And2, actualResult)) {
     throw 'Failed on rowWithTwoStarsPos0And2';
   }
 
   const rowWithTwoStarsPos1And3 = [ 1, -1, 26, -1, 65 ];
   const expectedPos1And3 = [ 1, 3 ];
   actualResult = getIndexesOfAllStarsInRow(rowWithTwoStarsPos1And3, []);
-  if (!utils.objectsEqual(expectedPos1And3, actualResult)) {
+  if (!objectsEqual(expectedPos1And3, actualResult)) {
     throw 'Failed on rowWithTwoStarsPos1And3';
   }
 
   const rowWithFourStars = [ -1, -1, 26, -1, -1 ];
   const expectedFourIndexes = [ 0, 1, 3, 4 ];
   actualResult = getIndexesOfAllStarsInRow(rowWithFourStars, []);
-  if (!utils.objectsEqual(expectedFourIndexes, actualResult)) {
+  if (!objectsEqual(expectedFourIndexes, actualResult)) {
     throw 'Failed on rowWithFourStars';
   }
 
@@ -431,7 +248,7 @@ function testGetIndexesOfAllStarsInRow() {
 }
 
 function testCheckForWinner() {
-  boardNoBingo = [
+  const boardNoBingo = [
     [ -1, 11, 47, 61, -1 ],
     [ 30, 74, 73, -1, 66 ],
     [ 53, 52, -1, 57, 15 ],
@@ -443,7 +260,7 @@ function testCheckForWinner() {
     throw 'testCheckForWinner failed with boardNoBingo';
   }
 
-  boardRow0Bingo = [
+  const boardRow0Bingo = [
     [ -1, -1, -1, -1, -1 ],
     [ 30, 74, 73, -1, 66 ],
     [ 53, 52, -1, 57, 15 ],
@@ -455,7 +272,7 @@ function testCheckForWinner() {
     throw 'testCheckForWinner failed with boardRow0Bingo';
   }
 
-  boardRow2Bingo = [
+  const boardRow2Bingo = [
     [ -1, 11, 47, 61, -1 ],
     [ 30, 74, 73, -1, 66 ],
     [ -1, -1, -1, -1, -1 ],
@@ -467,7 +284,7 @@ function testCheckForWinner() {
     throw 'testCheckForWinner failed with boardRow2Bingo';
   }
 
-  boardColumnBingo = [
+  const boardColumnBingo = [
     [ -1, 11, 47, -1, -1 ],
     [ 30, 74, 73, -1, 66 ],
     [ 53, 52, -1, -1, 15 ],

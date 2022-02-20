@@ -1,11 +1,11 @@
-const fileUtils = require('../common/file-utils.js');
+import { getContents } from '../common/file-utils.mjs';
 
-console.log(calculatePowerConsumption());
-console.log(calculateLifeSupportRating());
+console.log(calculatePowerConsumption()); // 8020398
+console.log(calculateLifeSupportRating()); // 1877139
 
 function calculatePowerConsumption(returnLimit = null) {
   try {
-    const reportLines = fileUtils.getContents('day-03/input.txt', returnLimit);
+    const reportLines = getContents('day-03/input.txt', returnLimit);
     const moreOnesInPosition = generateMoreOnesInPosition(reportLines);
     const [gammaString, epsilonString] = buildGammaAndEpsilonStrings(moreOnesInPosition);
     return parseInt(gammaString, 2) * parseInt(epsilonString, 2);
@@ -56,7 +56,7 @@ function buildGammaAndEpsilonStrings(moreOnesInPosition) {
 
 function calculateLifeSupportRating(returnLimit = null) {
   try {
-    const reportLines = fileUtils.getContents('day-03/input.txt', returnLimit);
+    const reportLines = getContents('day-03/input.txt', returnLimit);
     const [o2GeneratorLines, co2ScrubberLines] = separateArrayByDigit(reportLines, 0);
     const o2GeneratorRating = determineIndividualLifeSupportRating(o2GeneratorLines, 'o2');
     const co2ScrubberRating = determineIndividualLifeSupportRating(co2ScrubberLines, 'co2');
