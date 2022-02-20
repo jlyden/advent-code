@@ -68,7 +68,7 @@ module.exports.splitStringParseInts = function(input) {
   if (typeof input !== 'string') {
     throw 'Error: Input must be a string.';
   }
-  return input.split('').map(element => parseInt(element));
+  return input.split('').map(element => parseInt(element)).filter(element => !isNaN(element));
 }
 
 /***** TESTS *****/
@@ -268,6 +268,14 @@ function testSplitStringParseInts() {
 
   if (!objectsEqual(expectedResult, actualResult)) {
     throw `Failed: testSplitStringParseInts with strWithInts: ${actualResult}`;
+  }
+
+  const strWithIntsAndNonInts = "2199943210\r";
+  expectedResult = [2,1,9,9,9,4,3,2,1,0];
+  actualResult = splitStringParseInts(strWithIntsAndNonInts);
+
+  if (!objectsEqual(expectedResult, actualResult)) {
+    throw `Failed: testSplitStringParseInts with strWithIntsAndNonInts: ${actualResult}`;
   }
 
   expectedError = 'Error: Input must be a string.';
