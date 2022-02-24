@@ -1,10 +1,11 @@
-import { sumArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue } from './array-utils.mjs';
+import { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue } from './array-utils.mjs';
 import { objectsEqual } from './utils.mjs';
 
 runTests();
 
 function runTests() {
   testSumArray();
+  testMultiplyArray();
   testGetComplementOfArray();
   testGetIntersectionOfArrays();
   testGetArraysWithValue();
@@ -46,6 +47,44 @@ function testSumArray() {
   }
 
   console.log('Completed run of testSumArray successfully.')
+}
+
+function testMultiplyArray() {
+  const numberArray = [ 2, 4, 5 ];
+  let expectedResult = 40;
+  let actualResult = multiplyArray(numberArray);
+
+  if (expectedResult !== actualResult) {
+    throw `Failed: testMultiplyArray: ${actualResult}`;
+  }
+
+  const negativeNumberArray = [ -2, 4, 5];
+  expectedResult = -40;
+  actualResult = multiplyArray(negativeNumberArray);
+
+  if (expectedResult !== actualResult) {
+    throw `Failed: testMultiplyArray with neg nums: ${actualResult}`;
+  }
+
+  let expectedError = 'Invalid param: 6';
+  try {
+    actualResult = sumArray(6);
+  } catch (error) {
+    if (error !== expectedError) {
+      throw `Failed testMultiplyArray with non-array param - wrong error message`;
+    }
+  }
+
+  expectedError = 'Invalid param: [6,4,15,"foo",76,"bar"]';
+  try {
+    actualResult = sumArray([6, 4, 15, 'foo', 76, 'bar' ]);
+  } catch (error) {
+    if (error !== expectedError) {
+      throw `Failed testMultiplyArray with string array param - wrong error message`;
+    }
+  }
+
+  console.log('Completed run of testMultiplyArray successfully.')
 }
 
 function testGetComplementOfArray() {

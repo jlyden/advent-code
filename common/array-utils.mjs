@@ -6,6 +6,14 @@ function sumArray(arr) {
   return arr.reduce((a, b) => a + b);
 }
 
+function multiplyArray(arr) {
+  if (!Array.isArray(arr) || !isNumberArray(arr)) {
+    throw `Invalid param: ${JSON.stringify(arr)}`;
+  }
+
+  return arr.reduce((a,b) => a * b);
+}
+
 function isNumberArray(arr) {
   const strings = arr.filter(x => typeof x === 'string');
   return strings.length === 0;
@@ -33,4 +41,4 @@ function validateArrayOrder(arrOne, arrTwo) {
   }
 }
 
-export { sumArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue };
+export { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue };
