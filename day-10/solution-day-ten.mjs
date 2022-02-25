@@ -9,6 +9,27 @@ function getSyntaxErrorScore(returnLimit = null) {
   return calculateSyntaxErrorScore(illegalChars);
 }
 
+function getMiddleCompletionStringScore(returnLimit = null) {
+  const rows = getContents('day-10/input.txt', returnLimit);
+  const completionStrings = getCompletionStringsForRows(rows);
+  // get score for each completion string
+  // sort and return middle score
+}
+
+function getCompletionStringsForRows(rows) {
+  let completionStrings = [];
+
+  rows.forEach(row => {
+    const result = getFirstIllegalCharOrExpectedClosers(row);
+    const expectedClosers = Array.isArray(result) ? result : null;
+    // ignore corrupted rows - only deal with result if is array of closers
+    if (expectedClosers) { 
+      completionStrings.push.expectedClosers;
+    }
+  }); 
+  return completionStrings;
+}
+
 function getIllegalCharsFromRows(rows) {
   let illegalCharCounts = { 
     ')': 0,
@@ -18,8 +39,8 @@ function getIllegalCharsFromRows(rows) {
   };
 
   rows.forEach(row => {
-    const firstIllegalChar = getFirstIllegalChar(row);
-    if (firstIllegalChar) { 
+    const firstIllegalChar = getFirstIllegalCharOrExpectedClosers(row);
+    if (typeof firstIllegalChar === 'string') { 
       illegalCharCounts[firstIllegalChar]++;
     }
   });
@@ -55,7 +76,7 @@ function getOpenerCloserMap() {
   };
 }
 
-function getFirstIllegalChar(row) {
+function getFirstIllegalCharOrExpectedClosers(row) {
   const openerCloserMap = getOpenerCloserMap();
   
   const openers = Object.keys(openerCloserMap);
@@ -76,6 +97,7 @@ function getFirstIllegalChar(row) {
       }
     }
   }
+  return expectedClosers;
 }
 
-export { getFirstIllegalChar };
+export { getFirstIllegalCharOrExpectedClosers };

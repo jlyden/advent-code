@@ -9,4 +9,5 @@ https://adventofcode.com/2021
 * Day 5 -> rename utils, add range
 * Day 6 -> add sumArray
 * Day 8 -> add array-utils
+* Day 9 -> part two is incomplete! TODO
  

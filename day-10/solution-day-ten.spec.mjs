@@ -1,75 +1,75 @@
-import { getFirstIllegalChar } from './solution-day-ten.mjs';
+import { getFirstIllegalCharOrExpectedClosers } from './solution-day-ten.mjs';
 
 runTests();
 
 function runTests() {
-  testGetFirstIllegalChar();
+  testGetFirstIllegalCharOrExpectedClosers();
 }
 
-function testGetFirstIllegalChar() {
+function testGetFirstIllegalCharOrExpectedClosers() {
   let testRow = '(]';
   let expectedResult = ']';
-  let actualResult = getFirstIllegalChar(testRow);
+  let actualResult = getFirstIllegalCharOrExpectedClosers(testRow);
 
   if (expectedResult !== actualResult) {
-    throw `testGetFirstIllegalChar failed. actualResult: ${actualResult}`;
+    throw `testGetFirstIllegalCharOrExpectedClosers failed. actualResult: ${actualResult}`;
   }
 
   testRow = '{()()()>';
   expectedResult = '>';
-  actualResult = getFirstIllegalChar(testRow);
+  actualResult = getFirstIllegalCharOrExpectedClosers(testRow);
 
   if (expectedResult !== actualResult) {
-    throw `testGetFirstIllegalChar failed. actualResult: ${actualResult}`;
+    throw `testGetFirstIllegalCharOrExpectedClosers failed. actualResult: ${actualResult}`;
   }
 
   testRow = '<([]){()}[{}])';
   expectedResult = ')';
-  actualResult = getFirstIllegalChar(testRow);
+  actualResult = getFirstIllegalCharOrExpectedClosers(testRow);
 
   if (expectedResult !== actualResult) {
-    throw `testGetFirstIllegalChar failed. actualResult: ${actualResult}`;
+    throw `testGetFirstIllegalCharOrExpectedClosers failed. actualResult: ${actualResult}`;
   }
 
   testRow = '(((()))}';
   expectedResult = '}';
-  actualResult = getFirstIllegalChar(testRow);
+  actualResult = getFirstIllegalCharOrExpectedClosers(testRow);
 
   if (expectedResult !== actualResult) {
-    throw `testGetFirstIllegalChar failed. actualResult: ${actualResult}`;
+    throw `testGetFirstIllegalCharOrExpectedClosers failed. actualResult: ${actualResult}`;
   }
 
   testRow = '{([(<{}[<>[]}>{[]{[(<()>';
   expectedResult = '}';
-  actualResult = getFirstIllegalChar(testRow);
+  actualResult = getFirstIllegalCharOrExpectedClosers(testRow);
 
   if (expectedResult !== actualResult) {
-    throw `testGetFirstIllegalChar failed. actualResult: ${actualResult}`;
+    throw `testGetFirstIllegalCharOrExpectedClosers failed. actualResult: ${actualResult}`;
   }
 
   testRow = '[[<[([]))<([[{}[[()]]]';
   expectedResult = ')';
-  actualResult = getFirstIllegalChar(testRow);
+  actualResult = getFirstIllegalCharOrExpectedClosers(testRow);
 
   if (expectedResult !== actualResult) {
-    throw `testGetFirstIllegalChar failed. actualResult: ${actualResult}`;
+    throw `testGetFirstIllegalCharOrExpectedClosers failed. actualResult: ${actualResult}`;
   }
 
   testRow = '[{[{({}]{}}([{[{{{}}([]';
   expectedResult = ']';
-  actualResult = getFirstIllegalChar(testRow);
+  actualResult = getFirstIllegalCharOrExpectedClosers(testRow);
 
   if (expectedResult !== actualResult) {
-    throw `testGetFirstIllegalChar failed. actualResult: ${actualResult}`;
+    throw `testGetFirstIllegalCharOrExpectedClosers failed. actualResult: ${actualResult}`;
   }
 
   testRow = '<{([([[(<>()){}]>(<<{{';
   expectedResult = '>';
-  actualResult = getFirstIllegalChar(testRow);
+  actualResult = getFirstIllegalCharOrExpectedClosers(testRow);
 
   if (expectedResult !== actualResult) {
-    throw `testGetFirstIllegalChar failed. actualResult: ${actualResult}`;
+    throw `testGetFirstIllegalCharOrExpectedClosers failed. actualResult: ${actualResult}`;
   }
 
-  console.log('Completed run of testGetFirstIllegalChar successfully')
+  console.log('Completed run of testGetFirstIllegalCharOrExpectedClosers successfully')
 }
