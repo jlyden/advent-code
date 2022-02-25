@@ -1,4 +1,4 @@
-import { sumArray, multiplyArray } from '../common/array-utils.mjs';
+import { sumArray, multiplyArray, sortIntsDesc, sortIntsAsc } from '../common/array-utils.mjs';
 import { getContents } from '../common/file-utils.mjs';
 import { splitStringParseInts } from '../common/utils.mjs';
 
@@ -47,7 +47,7 @@ function calculateProductOfThreeLargestBasinSizes(basinSizes) {
   }
 
   // sort descending
-  basinSizes.sort((a,b) => b-a);
+  basinSizes.sort(sortIntsDesc);
   const largestThree = [basinSizes[0], basinSizes[1], basinSizes[2]];
   return multiplyArray(largestThree);
 }
@@ -78,7 +78,7 @@ function logBasinValue(point, basinValues) {
     basinValues.push(coordsInt);
   }
 
-  return basinValues.sort((a,b) => a-b);
+  return basinValues.sort(sortIntsAsc);
 }
 
 // tested
@@ -177,7 +177,7 @@ function getCurrentPointAndNeighbors(rowMatrix, row, col) {
 
 // tested
 function currentPointIsLowest(points) {
-  const allPointsNoNullsSorted = points.allPoints.sort();
+  const allPointsNoNullsSorted = points.allPoints.sort(sortIntsAsc);
   const lowestPoint = allPointsNoNullsSorted[0];
   const matchesCurrent = points.current === lowestPoint;
   const notMatchesNext = lowestPoint !== allPointsNoNullsSorted[1];

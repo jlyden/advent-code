@@ -41,4 +41,18 @@ function validateArrayOrder(arrOne, arrTwo) {
   }
 }
 
-export { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue };
+function sortIntsAsc(a,b) {
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    throw 'Must pass ints for sorting: ${a}, ${b}'
+  }
+  return a - b;
+}
+
+function sortIntsDesc(a,b) {
+  if (typeof a !== 'number' || typeof b !== 'number') {
+    throw 'Must pass ints for sorting: ${a}, ${b}'
+  }
+  return b - a;
+}
+
+export { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue, sortIntsAsc, sortIntsDesc };

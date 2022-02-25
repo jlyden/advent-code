@@ -1,7 +1,9 @@
+import { sortIntsAsc } from '../common/array-utils.mjs';
 import { getContents } from '../common/file-utils.mjs';
 import { objectsEqual } from '../common/utils.mjs';
 
 console.log(getSyntaxErrorScore()); // 464991
+console.log(getMiddleCompletionStringScore()); // 3269365189 is too low
 
 function getSyntaxErrorScore(returnLimit = null) {
   const rows = getContents('day-10/input.txt', returnLimit);
@@ -11,23 +13,48 @@ function getSyntaxErrorScore(returnLimit = null) {
 
 function getMiddleCompletionStringScore(returnLimit = null) {
   const rows = getContents('day-10/input.txt', returnLimit);
-  const completionStrings = getCompletionStringsForRows(rows);
-  // get score for each completion string
-  // sort and return middle score
+  const completionScores = getCompletionScoresForRows(rows);
+  return getMiddleScore(completionScores);
 }
 
-function getCompletionStringsForRows(rows) {
-  let completionStrings = [];
+function getCompletionScoresForRows(rows) {
+  let completionScores = [];
 
   rows.forEach(row => {
     const result = getFirstIllegalCharOrExpectedClosers(row);
     const expectedClosers = Array.isArray(result) ? result : null;
     // ignore corrupted rows - only deal with result if is array of closers
-    if (expectedClosers) { 
-      completionStrings.push.expectedClosers;
+    if (expectedClosers) {
+      completionScores.push(getCompletionScoreForClosers(expectedClosers));
     }
   }); 
-  return completionStrings;
+  return completionScores;
+}
+
+// tested
+function getMiddleScore(completionScores) {
+  const middleIndex = Math.floor(completionScores.length / 2);
+  return (completionScores.sort(sortIntsAsc))[middleIndex];
+}
+
+// tested
+function getCompletionScoreForClosers(expectedClosers) {
+  const pointsPerChar = {
+    ')': 1,
+    ']': 2,
+    '}': 3,
+    '>': 4,
+  }
+
+  let completionScore = 0;
+  expectedClosers.forEach(element => {
+    if (Object.keys(pointsPerChar).indexOf(element) < 0) {
+      throw `Error: invalid char in getCompletionScoreForClosers input object: ${JSON.stringify(expectedClosers)}`;
+    }
+    completionScore = (completionScore * 5) + pointsPerChar[element];
+  });
+
+  return completionScore;
 }
 
 function getIllegalCharsFromRows(rows) {
@@ -100,4 +127,4 @@ function getFirstIllegalCharOrExpectedClosers(row) {
   return expectedClosers;
 }
 
-export { getFirstIllegalCharOrExpectedClosers };
+export { getFirstIllegalCharOrExpectedClosers, getCompletionScoreForClosers, getMiddleScore };

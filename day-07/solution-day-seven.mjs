@@ -1,9 +1,9 @@
-import { sumArray } from '../common/array-utils.mjs';
+import { sumArray, sortIntsAsc } from '../common/array-utils.mjs';
 import { getContents } from '../common/file-utils.mjs';
 import { range } from '../common/utils.mjs';
 
 console.log(getFuelCostToMoveCrabsIntoAlignment(true)); // Constant Rate: 357353 
-//console.log(getFuelCostToMoveCrabsIntoAlignment(false)); // Increasing Rate: 104822130
+console.log(getFuelCostToMoveCrabsIntoAlignment(false)); // Increasing Rate: 104822130
 
 function getFuelCostToMoveCrabsIntoAlignment(constantRate = true, returnLimit = null) {
   const crabPositions = getContents('day-07/input.txt', returnLimit, ',').map(num => parseInt(num));
@@ -85,7 +85,7 @@ function getMinMaxOfArray(arr) {
   if (!Array.isArray(arr)) {
     throw `Error: getMinMaxOfArray called with non array: ${JSON.stringify(arr)}`;
   }
-  arr.sort((a,b) => a - b);
+  arr.sort(sortIntsAsc);
   return [ arr[0], arr[arr.length-1] ];
 }
 
