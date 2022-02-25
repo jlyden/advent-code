@@ -1,10 +1,10 @@
 import { getContents } from '../common/file-utils.mjs';
 import { objectsEqual } from '../common/utils.mjs';
 
-console.log(getSyntaxErrorScore());
+console.log(getSyntaxErrorScore()); // 464991
 
 function getSyntaxErrorScore(returnLimit = null) {
-  const rows = getContents('day-10/input-small.txt', returnLimit);
+  const rows = getContents('day-10/input.txt', returnLimit);
   const illegalChars = getIllegalCharsFromRows(rows);
   return calculateSyntaxErrorScore(illegalChars);
 }
@@ -43,24 +43,28 @@ function calculateSyntaxErrorScore(illegalCharCounts) {
   Object.keys(illegalCharCounts).forEach(char => {
     total += illegalCharCounts[char] * pointsPerChar[char];
   });
-  return 
+  return total;
 }
 
-const openerCloserMap = {
-  '{': '}',
-  '(': ')',
-  '[': ']',
-  '<': '>',
+function getOpenerCloserMap() {
+  return  {
+    '{': '}',
+    '(': ')',
+    '[': ']',
+    '<': '>',
+  };
 }
-
-const openers = Object.keys(openerCloserMap);
 
 function getFirstIllegalChar(row) {
-  const chars = row.split('');
+  const openerCloserMap = getOpenerCloserMap();
+  
+  const openers = Object.keys(openerCloserMap);
+  
+  const chars = row.split('').filter(val => val != '\r');
   let expectedClosers = [];
 
   for (const char of chars) {
-    if(isOpener(char)) {
+    if(openers.indexOf(char) > -1) {
       // add the closer we will look for later
       expectedClosers.push(openerCloserMap[char]);
     } else {
@@ -72,10 +76,6 @@ function getFirstIllegalChar(row) {
       }
     }
   }
-}
-
-function isOpener(char) {
-  return openers.indexOf(char) > -1;
 }
 
 export { getFirstIllegalChar };
