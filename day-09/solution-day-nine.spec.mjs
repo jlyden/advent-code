@@ -402,14 +402,22 @@ function testGetBasinSize() {
     throw `testGetBasinSize failed with lowestPointZeroOnRight. actualResult: ${JSON.stringify(actualResult)}`;
   }
 
+  const lowestPointBottomRight = [4,6];
+  expectedResult = 9;
+  actualResult = getBasinSize(testRowMatrix, lowestPointBottomRight, matrixHeight, matrixWidth);
+  
+  if (expectedResult !== actualResult) {
+    throw `testGetBasinSize failed with lowestPointBottomRight. actualResult: ${JSON.stringify(actualResult)}`;
+  }
+
+  // This one fails
   const lowestPointFiveInMiddle = [3,3];
   expectedResult = 14;
   actualResult = getBasinSize(testRowMatrix, lowestPointFiveInMiddle, matrixHeight, matrixWidth);
   
   if (expectedResult !== actualResult) {
-    throw `testGetBasinSize failed with lowestPointZeroOnRight. actualResult: ${JSON.stringify(actualResult)}`;
+    throw `testGetBasinSize failed with lowestPointFiveInMiddle. actualResult: ${JSON.stringify(actualResult)}`;
   }
-
 
   console.log('Completed run of testGetBasinSize successfully');
 }

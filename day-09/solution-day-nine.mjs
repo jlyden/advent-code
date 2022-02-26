@@ -52,8 +52,7 @@ function calculateProductOfThreeLargestBasinSizes(basinSizes) {
   return multiplyArray(largestThree);
 }
 
-// TODO: test
-// NOTE: this fails if rows have values not off the lowerPointRow
+// TODO: this fails if rows have values not off the lowerPointRow
 function getBasinSize(rowMatrix, lowestPoint, matrixHeight, matrixWidth) {
   let basinSize = 0;
   const [ lowestPointRow, lowestPointCol ] = lowestPoint;
@@ -67,8 +66,8 @@ function getBasinSize(rowMatrix, lowestPoint, matrixHeight, matrixWidth) {
   return basinSize;
 }
 
-  // initial point input is lowestPoint
-  function getBasinSizeCrawler(rowMatrix, point, basinValues) {
+// initial point input is lowestPoint
+function getBasinSizeCrawler(rowMatrix, point, basinValues) {
 
 }
 
