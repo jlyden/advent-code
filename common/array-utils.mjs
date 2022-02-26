@@ -55,4 +55,14 @@ function sortIntsDesc(a,b) {
   return b - a;
 }
 
-export { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue, sortIntsAsc, sortIntsDesc };
+function reverseArray(anArray) {
+  const returnArray = [];
+  const anArrayLen = anArray.length;
+  for (let i = 0; i < anArrayLen; i++) {
+    let element = anArray.shift();
+    returnArray.unshift(element);
+  }
+  return returnArray;
+}
+
+export { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue, sortIntsAsc, sortIntsDesc, reverseArray };

@@ -1,9 +1,9 @@
-import { sortIntsAsc } from '../common/array-utils.mjs';
+import { sortIntsAsc, reverseArray } from '../common/array-utils.mjs';
 import { getContents } from '../common/file-utils.mjs';
 import { objectsEqual } from '../common/utils.mjs';
 
 console.log(getSyntaxErrorScore()); // 464991
-console.log(getMiddleCompletionStringScore()); // 3269365189 is too low
+console.log(getMiddleCompletionStringScore()); // 3662008566
 
 function getSyntaxErrorScore(returnLimit = null) {
   const rows = getContents('day-10/input.txt', returnLimit);
@@ -18,16 +18,24 @@ function getMiddleCompletionStringScore(returnLimit = null) {
 }
 
 function getCompletionScoresForRows(rows) {
+  let corruptedRows = 0; // for verification
   let completionScores = [];
 
   rows.forEach(row => {
     const result = getFirstIllegalCharOrExpectedClosers(row);
-    const expectedClosers = Array.isArray(result) ? result : null;
-    // ignore corrupted rows - only deal with result if is array of closers
-    if (expectedClosers) {
-      completionScores.push(getCompletionScoreForClosers(expectedClosers));
+    if (Array.isArray(result)) {
+      // ignore corrupted rows - only deal with result if is array of closers
+      completionScores.push(getCompletionScoreForClosers(result));
+    } else {
+      corruptedRows++;
     }
-  }); 
+  });
+
+  // Sanity check
+  if (corruptedRows + completionScores.length !== rows.length) {
+    throw `We lost some rows. ${corruptedRows} + ${completionScores.length} !== ${rows.length}`;
+  }
+
   return completionScores;
 }
 
@@ -53,7 +61,6 @@ function getCompletionScoreForClosers(expectedClosers) {
     }
     completionScore = (completionScore * 5) + pointsPerChar[element];
   });
-
   return completionScore;
 }
 
@@ -124,7 +131,7 @@ function getFirstIllegalCharOrExpectedClosers(row) {
       }
     }
   }
-  return expectedClosers;
+  return reverseArray(expectedClosers);
 }
 
 export { getFirstIllegalCharOrExpectedClosers, getCompletionScoreForClosers, getMiddleScore };

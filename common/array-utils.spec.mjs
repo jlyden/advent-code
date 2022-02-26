@@ -1,4 +1,4 @@
-import { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue } from './array-utils.mjs';
+import { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue, reverseArray } from './array-utils.mjs';
 import { objectsEqual } from './utils.mjs';
 
 runTests();
@@ -9,6 +9,7 @@ function runTests() {
   testGetComplementOfArray();
   testGetIntersectionOfArrays();
   testGetArraysWithValue();
+  testReverseArray();
 }
 
 function testSumArray() {
@@ -182,4 +183,17 @@ function testGetArraysWithValue() {
   }
 
   console.log('Completed run of testGetArraysWithValue successfully')
+}
+
+function testReverseArray() {
+
+  let testArray = [ ']', ')', '}', ')', ']', ']', '}', '}' ];
+  let expectedResult = [ '}', '}', ']', ']', ')', '}', ')', ']' ];
+  let actualResult = reverseArray(testArray);
+
+  if (!objectsEqual(expectedResult, actualResult)) {
+    throw `testReverseArray failed. actualResult: ${JSON.stringify(actualResult)}`;
+  }
+
+  console.log('Completed run of testReverseArray successfully')
 }
