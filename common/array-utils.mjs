@@ -1,3 +1,5 @@
+import { splitStringParseInts } from '../common/utils.mjs';
+
 function sumArray(arr) {
   if (!Array.isArray(arr) || !isNumberArray(arr)) {
     throw `Invalid param: ${JSON.stringify(arr)}`;
@@ -65,4 +67,13 @@ function reverseArray(anArray) {
   return returnArray;
 }
 
-export { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue, sortIntsAsc, sortIntsDesc, reverseArray };
+// tested
+function buildRowMatrix(rows) {
+  const rowMatrix = [];
+  rows.forEach(row => {
+    rowMatrix.push(splitStringParseInts(row));
+  });
+  return rowMatrix;
+}
+
+export { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue, sortIntsAsc, sortIntsDesc, reverseArray, buildRowMatrix };

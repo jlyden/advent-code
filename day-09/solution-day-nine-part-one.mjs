@@ -1,6 +1,5 @@
-import { sumArray, multiplyArray, sortIntsDesc, sortIntsAsc } from '../common/array-utils.mjs';
+import { sumArray, sortIntsAsc, buildRowMatrix } from '../common/array-utils.mjs';
 import { getContents } from '../common/file-utils.mjs';
-import { splitStringParseInts } from '../common/utils.mjs';
 
 //console.log(getSumOfLowPointRiskLevels()); // 462
 
@@ -9,15 +8,6 @@ function getSumOfLowPointRiskLevels(returnLimit = null) {
   const rowMatrix = buildRowMatrix(rows);
   const lowPoints = getLowPoints(rowMatrix);
   return calculateSumOfLowPointRiskLevels(lowPoints);
-}
-
-// tested
-function buildRowMatrix(rows) {
-  const rowMatrix = [];
-  rows.forEach(row => {
-    rowMatrix.push(splitStringParseInts(row));
-  });
-  return rowMatrix;
 }
 
 // tested

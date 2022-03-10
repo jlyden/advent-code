@@ -1,4 +1,4 @@
-import { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue, reverseArray } from './array-utils.mjs';
+import { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue, reverseArray, buildRowMatrix } from './array-utils.mjs';
 import { objectsEqual } from './utils.mjs';
 
 runTests();
@@ -10,6 +10,7 @@ function runTests() {
   testGetIntersectionOfArrays();
   testGetArraysWithValue();
   testReverseArray();
+  testBuildRowMatrix();
 }
 
 function testSumArray() {
@@ -196,4 +197,30 @@ function testReverseArray() {
   }
 
   console.log('Completed run of testReverseArray successfully')
+}
+
+function testBuildRowMatrix() {
+  const testRows = [
+    '2199943210\r',
+    '3987894921\r',
+    '9856789892\r',
+    '8767896789\r',
+    '9899965678'
+  ];
+
+  const expectedResult = [
+    [2,1,9,9,9,4,3,2,1,0],
+    [3,9,8,7,8,9,4,9,2,1],
+    [9,8,5,6,7,8,9,8,9,2],
+    [8,7,6,7,8,9,6,7,8,9],
+    [9,8,9,9,9,6,5,6,7,8],
+  ];
+
+  let actualResult = buildRowMatrix(testRows);
+
+  if (!objectsEqual(expectedResult, actualResult)) {
+    throw `testBuildRowMatrix failed with ${JSON.stringify(testRows)}. actualResult: ${JSON.stringify(actualResult)}`;
+  }
+
+  console.log('Completed run of testBuildRowMatrix successfully')
 }
