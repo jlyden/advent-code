@@ -1,4 +1,4 @@
-import { buildRowMatrix } from "../common/array-utils.mjs"
+import { buildRowMatrix } from "../common/matrix-utils.mjs"
 import { getContents } from "../common/file-utils.mjs";
 import { objectsEqual } from '../common/utils.mjs';
 import { determineFlashCountsAfterSteps } from './solution-day-eleven.mjs';

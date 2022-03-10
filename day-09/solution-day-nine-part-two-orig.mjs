@@ -1,4 +1,6 @@
-import { multiplyArray, sortIntsDesc, sortIntsAsc } from '../common/array-utils.mjs';
+import { multiplyArray, sortIntsDesc } from '../common/array-utils.mjs';
+import { getCurrentPointAndNeighbors } from '../common/matrix-utils.mjs';
+import { buildRowMatrix } from '../common/matrix-utils.mjs';
 import { getContents } from '../common/file-utils.mjs';
 
 function getProductOfThreeLargestBasinSizes(returnLimit = null) {

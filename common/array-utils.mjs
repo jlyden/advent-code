@@ -67,13 +67,4 @@ function reverseArray(anArray) {
   return returnArray;
 }
 
-// tested
-function buildRowMatrix(rows) {
-  const rowMatrix = [];
-  rows.forEach(row => {
-    rowMatrix.push(splitStringParseInts(row));
-  });
-  return rowMatrix;
-}
-
-export { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue, sortIntsAsc, sortIntsDesc, reverseArray, buildRowMatrix };
+export { sumArray, multiplyArray, getComplementOfArray, getIntersectionOfArrays, getArraysWithValue, sortIntsAsc, sortIntsDesc, reverseArray };

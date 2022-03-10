@@ -1,6 +1,5 @@
 import { objectsEqual } from '../common/utils.mjs';
 import {
-  buildRowMatrix,
   getCurrentPointAndNeighbors,
   currentPointIsLowest,
   getLowPoints,

@@ -1,7 +1,8 @@
-import { sumArray, sortIntsAsc, buildRowMatrix } from '../common/array-utils.mjs';
+import { sumArray, sortIntsAsc } from '../common/array-utils.mjs';
+import { buildRowMatrix } from '../common/matrix-utils.mjs';
 import { getContents } from '../common/file-utils.mjs';
 
-//console.log(getSumOfLowPointRiskLevels()); // 462
+console.log(getSumOfLowPointRiskLevels()); // 462
 
 function getSumOfLowPointRiskLevels(returnLimit = null) {
   const rows = getContents('day-09/input.txt', returnLimit);

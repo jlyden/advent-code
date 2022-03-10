@@ -1,5 +1,5 @@
 import { getContents } from "../common/file-utils.mjs";
-import { buildRowMatrix } from "../common/array-utils.mjs"
+import { buildRowMatrix } from "../common/matrix-utils.mjs"
 
 getFlashCountAfterSteps(1,1);
 
